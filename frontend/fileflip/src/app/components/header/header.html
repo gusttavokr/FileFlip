@@ -1,7 +1,7 @@
 <div class="flex items-center p-4 justify-between">
   <img src="logotipo.svg" alt="FileFlip Logo" />
 
-  <ul class="flex gap-10 text-center">
+  <ul class="flex gap-10 text-center text-[#03133A]">
     <li *ngFor="let item of items; trackBy: trackByLabel">
       <i class="{{item.icon}} mr-2"></i>
       <a [routerLink]="item.routerLink" routerLinkActive="active-link" class="header-link">
