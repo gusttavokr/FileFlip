@@ -1,0 +1,79 @@
+<div class="flex justify-center items-center">
+
+    <div class="flex justify-between gap-80 pl-20 pr-20">
+        <div class="flex flex-col items-center justify-center">
+            <h1 class="text-7xl font-extrabold text-center text-blue-600">Cadastro</h1>
+            <p class="text-center font-normal mt-4">
+                Acesse agora a melhor <b>plataforma de conversão de arquivos</b> da América! 🌎
+            </p>
+
+            <div class="flex flex-col gap-6 pt-10">
+                <div class="flex flex-row gap-6 w-full">
+                    <!-- Nome -->
+                    <div class="flex flex-col flex-1">
+                        <label for="username" class="mb-1 flex items-center gap-2">
+                            <i class="pi pi-user"></i> Nome de usuário
+                        </label>
+                        <p-inputgroup class="w-full">
+                            <input id="username" pInputText [(ngModel)]="username"
+                                placeholder="Digite seu nome de usuário" class="w-full" />
+                        </p-inputgroup>
+                    </div>
+
+                    <!-- E-mail -->
+                    <div class="flex flex-col flex-1">
+                        <label for="email" class="mb-1 flex items-center gap-2">
+                            <i class="pi pi-envelope"></i> E-mail
+                        </label>
+                        <p-inputgroup class="w-full">
+                            <input id="email" pInputText [(ngModel)]="email" placeholder="Digite seu e-mail"
+                                class="w-full" />
+                        </p-inputgroup>
+                    </div>
+                </div>
+
+                <div class="flex flex-row gap-6 w-full">
+                    <!-- Senha -->
+                    <div class="flex flex-col flex-1">
+                        <label for="senha" class="mb-1 flex items-center gap-2">
+                            <i class="pi pi-lock"></i> Senha
+                        </label>
+                        <p-password inputId="senha" [(ngModel)]="senha" [toggleMask]="true" [styleClass]="'w-full'"
+                            placeholder="Digite sua senha" />
+                    </div>
+
+                    <!-- Confirmar senha -->
+                    <div class="flex flex-col flex-1">
+                        <label for="confirmarSenha" class="mb-1 flex items-center gap-2">
+                            <i class="pi pi-lock"></i> Confirmar senha
+                        </label>
+                        <p-password inputId="confirmarSenha" [(ngModel)]="confirmarSenha" [toggleMask]="true"
+                            [styleClass]="'w-full'" placeholder="Confirme sua senha" />
+                    </div>
+                </div>
+
+                <div class="flex-col justify-end items-center">
+                    <p class="text-end font-thin text-gray-400">
+                        Já tenho uma conta!
+                    </p>
+
+                    <div class="w-full mt-6">
+                        <button
+                            (click)="onCadastroSucesso()"
+                            class="w-full bg-blue-600 hover:bg-blue-900 text-white font-normal py-3 px-4 rounded flex justify-center items-center gap-2">
+                            <i class="pi pi-check"></i>
+                            <span>Cadastrar</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="items-center text-center justify-center">
+            <img src="logo.svg" width="300" alt="Logo">
+        </div>
+
+    </div>
+</div>
