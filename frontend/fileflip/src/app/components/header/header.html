@@ -1,23 +1,19 @@
-<div class="card">
-    <p-menubar [model]="items" class="text-center justify-center !bg-transparent !border-0">
-      <!-- start slot correto -->
-      <ng-template pTemplate="start">
-        <img src="logotipo.svg" alt="">
-      </ng-template>
+<div class="flex items-center p-4 justify-between">
+  <img src="logotipo.svg" alt="FileFlip Logo" />
 
-      <!-- item template correto -->
-      <ng-template pTemplate="item" let-item let-root="root">
-        <a pRipple class="flex items-center p-menubar-item-link">
-          <span>{{ item.label }}</span>
-          <p-badge *ngIf="item.badge" [ngClass]="{ 'ml-auto': !root, 'ml-2': root }" [value]="item.badge" />
-          <span *ngIf="item.shortcut" class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">{{ item.shortcut }}</span>
-          <i *ngIf="item.items" [ngClass]="['ml-auto pi', root ? 'pi-angle-down' : 'pi-angle-right']"></i>
-        </a>
-      </ng-template>
+  <ul class="flex gap-10 text-center">
+    <li *ngFor="let item of items; trackBy: trackByLabel">
+      <i class="{{item.icon}} mr-2"></i>
+      <a [routerLink]="item.routerLink" routerLinkActive="active-link" class="header-link">
+        {{ item.label }}
+      </a>
+    </li>
+  </ul>
 
-      <!-- end slot correto -->
-      <ng-template pTemplate="end">
-        <p-avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
-      </ng-template>
-    </p-menubar>
-  </div>
+  <button
+    class="bg-blue-600 hover:bg-blue-900 text-white font-normal py-3 px-4 rounded flex justify-center items-center gap-2">
+    <i class="pi pi-check"></i>
+    <span>Cadastrar</span>
+  </button>
+
+</div>
