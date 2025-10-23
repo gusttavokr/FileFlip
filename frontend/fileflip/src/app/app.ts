@@ -1,13 +1,15 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
-import { Registro } from './pages/registro/registro';
+import { Header } from './components/header/header';
 
 @Component({
   selector: 'app-root',
   imports: [
     RouterOutlet,
-    Registro
+    // Registro,c
+    // Arquivos,
+    Header,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'

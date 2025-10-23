@@ -7,6 +7,7 @@ import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-registro',
@@ -20,14 +21,19 @@ import { ButtonModule } from 'primeng/button';
         SelectModule, 
         InputNumberModule,
         PasswordModule,
-        ButtonModule
+        ButtonModule,
     ]
 })
 export class Registro {
+    constructor(private router: Router) {}
     username: string | undefined;
 
     email: string | undefined;
 
     senha!: string;
     confirmarSenha!: string;
+
+    onCadastroSucesso() {
+        this.router.navigate(['/meus-arquivos']);
+  }
 }
