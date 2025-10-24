@@ -1,6 +1,5 @@
 // ...existing code...
-import { Component } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { Component, inject } from '@angular/core';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -8,16 +7,57 @@ import { BadgeModule } from 'primeng/badge';
 import { HttpClientModule } from '@angular/common/http';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
+import { SelectModule } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
+
+import { Message } from 'primeng/message';
+import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { MessageModule } from 'primeng/message';
+
+interface City {
+    name: string;
+    code: string;
+}
 
 @Component({
   selector: 'app-index',
   standalone: true,
-  imports: [CommonModule, FileUploadModule, ButtonModule, BadgeModule, ProgressBarModule, ToastModule, HttpClientModule],
+  imports: [
+    CommonModule, 
+    FileUploadModule, 
+    ButtonModule, 
+    BadgeModule, 
+    ProgressBarModule, 
+    ToastModule, 
+    HttpClientModule, 
+    SelectModule, 
+    FormsModule,
+    SelectModule, 
+    FormsModule,
+    MessageModule
+],
   templateUrl: './index.html',
   providers: [MessageService],
 })
 export class Index {
   files: any[] = [];
+
+  messageService = inject(MessageService);
+
+  cities: City[] | undefined;
+
+    selectedCity: City | undefined;
+
+    ngOnInit() {
+        this.cities = [
+            { name: 'New York', code: 'NY' },
+            { name: 'Rome', code: 'RM' },
+            { name: 'London', code: 'LDN' },
+            { name: 'Istanbul', code: 'IST' },
+            { name: 'Paris', code: 'PRS' }
+        ];
+    }
 
   totalSize: number = 0; // em bytes
 
@@ -26,7 +66,6 @@ export class Index {
   // fallback local para unidades de tamanho — usado por formatSize
   private fileSizeTypes: string[] = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-  constructor(private messageService: MessageService) {}
 
   choose(event: any, callback: Function) {
       callback();
@@ -43,6 +82,13 @@ export class Index {
       this.totalSize = 0;
       this.totalSizePercent = 0;
   }
+
+  onSubmit(form: any) {
+        if (form.valid) {
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Form Submitted', life: 3000 });
+            form.resetForm();
+        }
+    }
 
   onTemplatedUpload() {
       this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
