@@ -15,9 +15,9 @@ import { CommonModule } from '@angular/common';
   ],
   providers: [CardSimplesService],
   template: `
-      <div class="flex flex-wrap gap-4 justify-center">
+      <div class="flex flex-wrap gap-4 justify-center mb-20">
         <ng-container *ngFor="let card of cards()">
-        <p-card class="flex flex-col min-w-[200px] items-center !bg-[#ffffff] !text-[#020035] text-center justify-center">
+        <p-card class="flex flex-col min-w-[200px] max-w-[350px] items-center !bg-[#ffffff] !text-[#020035] text-center justify-center">
            <div class="w-full flex justify-center">
                <p-avatar size="large" shape="circle" class="mb-2 !bg-[#2D69FF] flex items-center justify-center">
                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#ffffff" viewBox="0 0 256 256">
@@ -28,7 +28,7 @@ import { CommonModule } from '@angular/common';
                </p-avatar>
            </div>
            <h1 class="font-bold text-3xl">{{ card.titulo }}</h1>
-           <p class="">{{ card.legenda }}</p>
+           <p class="mt-2">{{ card.legenda }}</p>
        </p-card>
       </ng-container>
       </div>
