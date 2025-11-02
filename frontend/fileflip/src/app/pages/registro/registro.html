@@ -3,7 +3,7 @@
     <div class="flex justify-between gap-80 pl-20 pr-20">
         <div class="flex flex-col items-center justify-center">
             <h1 class="text-7xl font-extrabold text-center text-blue-600">Cadastro</h1>
-            <p class="text-center font-normal mt-4">
+            <p class="text-center font-normal mt-4 text-[#03133A]">
                 Acesse agora a melhor <b>plataforma de conversão de arquivos</b> da América! 🌎
             </p>
 
@@ -59,9 +59,14 @@
 
                     <div class="w-full mt-6">
                         <button
-                            (click)="onCadastroSucesso()"
-                            class="w-full bg-blue-600 hover:bg-blue-900 text-white font-normal py-3 px-4 rounded flex justify-center items-center gap-2">
-                            <i class="pi pi-check"></i>
+                            class="bg-blue-600 w-full hover:bg-[#03133A] transition-colors duration-200 ease-in-out cursor-pointer text-white font-normal py-3 px-4 rounded flex justify-center items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-log-in-icon lucide-log-in">
+                                <path d="m10 17 5-5-5-5" />
+                                <path d="M15 12H3" />
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                            </svg>
                             <span>Cadastrar</span>
                         </button>
                     </div>
