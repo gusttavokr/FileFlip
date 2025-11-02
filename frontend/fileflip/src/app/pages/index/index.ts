@@ -17,9 +17,8 @@ import { MessageModule } from 'primeng/message';
 
 import { CardSimples } from '../../components/card-simples/card-simples';
 
-interface City {
+interface Format {
     name: string;
-    code: string;
 }
 
 @Component({
@@ -49,17 +48,17 @@ export class Index {
 
   messageService = inject(MessageService);
 
-  cities: City[] | undefined;
+  formatos: Format[] | undefined;
 
-    selectedCity: City | undefined;
+    formatoSelecionado: Format | undefined;
 
     ngOnInit() {
-        this.cities = [
-            { name: 'New York', code: 'NY' },
-            { name: 'Rome', code: 'RM' },
-            { name: 'London', code: 'LDN' },
-            { name: 'Istanbul', code: 'IST' },
-            { name: 'Paris', code: 'PRS' }
+        this.formatos = [
+            { name: 'PDF'},
+            { name: 'DOCX'},
+            { name: 'PNG'},
+            { name: 'JPEG'},
+            { name: 'SVG'}
         ];
     }
 

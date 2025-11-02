@@ -6,11 +6,10 @@
       Converta seus arquivos na melhor plataforma <b>da América!</b> 🌎
     </p>
 
-    <div class="card max-w-3xl mx-auto mt-8 h-96 md:h-96 lg:h-[28rem] overflow-auto">
+    <div class="card max-w-3xl mx-auto mt-8 h-96 md:h-96 lg:h-[28rem]">
       <p-toast></p-toast>
-      <p-fileupload styleClass="pb-20" name="myfile[]" url="https://www.primefaces.org/cdn/api/upload.php"
-        [multiple]="true" accept="image/*" maxFileSize="1000000" (onUpload)="onTemplatedUpload()"
-        (onSelect)="onSelectedFiles($event)">
+      <p-fileupload styleClass="h-[380px]" name="myfile[]" url="https://www.primefaces.org/cdn/api/upload.php"
+        [multiple]="true" maxFileSize="1000000" (onUpload)="onTemplatedUpload()" (onSelect)="onSelectedFiles($event)">
 
         <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback"
           let-uploadCallback="uploadCallback">
@@ -34,30 +33,21 @@
           </div>
         </ng-template>
 
+
+        <ng-template #file></ng-template>
+
+
+        <ng-template #empty>
+          <div class="flex items-center justify-center flex-col">
+            <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color"></i>
+            <p class="mt-6 mb-0">Drag and drop files to here to upload.</p>
+          </div>
+        </ng-template>
+
         <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback"
           let-removeUploadedFileCallback="removeUploadedFileCallback">
           <div class="flex flex-col gap-8 pt-4">
-            <div *ngIf="files?.length > 0">
-              <p-toast></p-toast>
 
-              <div class="card flex justify-center">
-                <form #exampleForm="ngForm" (ngSubmit)="onSubmit(exampleForm)"
-                  class="flex flex-col gap-4 w-full sm:w-56">
-                  <div class="flex flex-col gap-1">
-                    <p-select #city="ngModel" name="city" [(ngModel)]="selectedCity" [options]="cities"
-                      [invalid]="city.invalid && (city.touched || exampleForm['submitted'])" optionLabel="name"
-                      placeholder="Select a City" class="w-full md:w-56" required>
-                    </p-select>
-
-                    <ng-container *ngIf="city.invalid && (city.touched || exampleForm['submitted'])">
-                      <p-message severity="error" size="small" variant="simple">City is required.</p-message>
-                    </ng-container>
-                  </div>
-
-                  <button pButton type="submit" label="Submit" class="p-button-secondary"></button>
-                </form>
-              </div>
-            </div>
 
             <div class="flex flex-wrap gap-4">
               <div *ngFor="let file of files; let i = index"
@@ -75,6 +65,27 @@
               </div>
             </div>
 
+            <div *ngIf="files?.length > 0">
+              <p-toast></p-toast>
+              <div class="card">
+                <form #exampleForm="ngForm" (ngSubmit)="onSubmit(exampleForm)"
+                  class="flex flex-col gap-4 w-full w-full">
+                  <div class="flex flex-col gap-1">
+                    <p-select #city="ngModel" name="city" [(ngModel)]="formatoSelecionado" [options]="formatos"
+                      [invalid]="city.invalid && (city.touched || exampleForm['submitted'])" optionLabel="name"
+                      placeholder="Selecione o formato" class="w-full md:w-56" required>
+                    </p-select>
+
+                    <ng-container *ngIf="city.invalid && (city.touched || exampleForm['submitted'])">
+                      <p-message severity="error" size="small" variant="simple">O formato é obrigatório.</p-message>
+                    </ng-container>
+                  </div>
+
+                  <button pButton type="submit" label="Converter"
+                    class="bg-blue-600 border-0 hover:bg-[#03133A] w-full"></button>
+                </form>
+              </div>
+            </div>
             <div *ngIf="uploadedFiles?.length > 0">
               <h5>Completed</h5>
               <div class="flex flex-wrap gap-4">
@@ -91,20 +102,17 @@
             </div>
           </div>
         </ng-template>
-
-        <ng-template #file></ng-template>
-
-        <ng-template #empty>
-          <div class="flex items-center justify-center flex-col">
-            <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color"></i>
-            <p class="mt-6 mb-0">Drag and drop files to here to upload.</p>
-          </div>
-        </ng-template>
       </p-fileupload>
     </div>
-    <div class="flex justify-center">
-      <!-- cards -->
-      <app-card-simples></app-card-simples>
+    <div class="justify-center">
+      <h2 class="text-5xl font-bold">Por que usar?</h2>
+      <p class="text-center font-normal mt-4">
+        Quais benefícios você ganha em usar o <b>FileFlip!</b> 🤖
+      </p>
+      <div class="flex pt-10">
+        <!-- cards -->
+        <app-card-simples></app-card-simples>
+      </div>
     </div>
   </div>
 </div>
