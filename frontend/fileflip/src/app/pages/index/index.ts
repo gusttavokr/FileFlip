@@ -15,6 +15,8 @@ import { Toast } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { MessageModule } from 'primeng/message';
 
+import { CardSimples } from '../../components/card-simples/card-simples';
+
 interface City {
     name: string;
     code: string;
@@ -35,7 +37,9 @@ interface City {
     FormsModule,
     SelectModule, 
     FormsModule,
-    MessageModule
+    MessageModule,
+    CardSimples
+
 ],
   templateUrl: './index.html',
   providers: [MessageService],

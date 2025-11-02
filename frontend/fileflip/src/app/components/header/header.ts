@@ -25,10 +25,9 @@ export class Header implements OnInit {
 
   ngOnInit() {
     this.items = [
-    { label: 'Página inicial', icon: 'pi pi-home', routerLink: '/' },
-    { label: 'Edição em lotes', routerLink: '/edicao' },
-    { label: 'Meus arquivos', routerLink: '/arquivos' },
-    { label: 'Configurações', routerLink: '/configuracoes' },
+    // { label: 'Página inicial', icon: 'pi pi-home', routerLink: '/' },
+    { label: 'Suporte', icon:'pi pi-phone' ,routerLink: '/suporte' },
+    { label: 'Configurações', icon:'pi pi-cog' , routerLink: '/configuracoes' },
   ];
   }
 

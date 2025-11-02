@@ -8,18 +8,22 @@
 
     <div class="card max-w-3xl mx-auto mt-8 h-96 md:h-96 lg:h-[28rem] overflow-auto">
       <p-toast></p-toast>
-
-      <p-fileupload name="myfile[]" url="https://www.primefaces.org/cdn/api/upload.php" [multiple]="true"
-                    accept="image/*" maxFileSize="1000000"
-                    (onUpload)="onTemplatedUpload()" (onSelect)="onSelectedFiles($event)">
+      <p-fileupload styleClass="pb-20" name="myfile[]" url="https://www.primefaces.org/cdn/api/upload.php"
+        [multiple]="true" accept="image/*" maxFileSize="1000000" (onUpload)="onTemplatedUpload()"
+        (onSelect)="onSelectedFiles($event)">
 
         <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback"
-                     let-uploadCallback="uploadCallback">
+          let-uploadCallback="uploadCallback">
           <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
             <div class="flex gap-2">
-              <button pButton type="button" (click)="choose($event, chooseCallback)" icon="pi pi-images" class="p-button-outlined p-button-rounded"></button>
-              <button pButton type="button" (click)="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" class="p-button-outlined p-button-rounded p-button-success" [disabled]="!files || files.length === 0"></button>
-              <button pButton type="button" (click)="clearCallback()" icon="pi pi-times" class="p-button-outlined p-button-rounded p-button-danger" [disabled]="!files || files.length === 0"></button>
+              <button pButton type="button" (click)="choose($event, chooseCallback)" icon="pi pi-images"
+                class="p-button-outlined p-button-rounded"></button>
+              <button pButton type="button" (click)="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload"
+                class="p-button-outlined p-button-rounded p-button-success"
+                [disabled]="!files || files.length === 0"></button>
+              <button pButton type="button" (click)="clearCallback()" icon="pi pi-times"
+                class="p-button-outlined p-button-rounded p-button-danger"
+                [disabled]="!files || files.length === 0"></button>
             </div>
 
             <div class="flex-1 md:ml-auto">
@@ -30,17 +34,19 @@
           </div>
         </ng-template>
 
-        <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback">
+        <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback"
+          let-removeUploadedFileCallback="removeUploadedFileCallback">
           <div class="flex flex-col gap-8 pt-4">
             <div *ngIf="files?.length > 0">
               <p-toast></p-toast>
 
               <div class="card flex justify-center">
-                <form #exampleForm="ngForm" (ngSubmit)="onSubmit(exampleForm)" class="flex flex-col gap-4 w-full sm:w-56">
+                <form #exampleForm="ngForm" (ngSubmit)="onSubmit(exampleForm)"
+                  class="flex flex-col gap-4 w-full sm:w-56">
                   <div class="flex flex-col gap-1">
                     <p-select #city="ngModel" name="city" [(ngModel)]="selectedCity" [options]="cities"
-                              [invalid]="city.invalid && (city.touched || exampleForm['submitted'])"
-                              optionLabel="name" placeholder="Select a City" class="w-full md:w-56" required>
+                      [invalid]="city.invalid && (city.touched || exampleForm['submitted'])" optionLabel="name"
+                      placeholder="Select a City" class="w-full md:w-56" required>
                     </p-select>
 
                     <ng-container *ngIf="city.invalid && (city.touched || exampleForm['submitted'])">
@@ -54,26 +60,32 @@
             </div>
 
             <div class="flex flex-wrap gap-4">
-              <div *ngFor="let file of files; let i = index" class="p-8 rounded-border flex border border-surface items-center gap-4">
+              <div *ngFor="let file of files; let i = index"
+                class="p-8 rounded-border flex border border-surface items-center gap-4">
                 <div>
                   <img role="presentation" [alt]="file.name" [src]="file.objectURL" width="100" />
                 </div>
 
-                <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
+                <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name
+                  }}</span>
                 <div>{{ formatSize(file.size) }}</div>
                 <p-badge value="Pending" severity="warn"></p-badge>
-                <button pButton icon="pi pi-times" (click)="onRemoveTemplatingFile($event, file, removeFileCallback, i)" class="p-button-outlined p-button-rounded p-button-danger"></button>
+                <button pButton icon="pi pi-times" (click)="onRemoveTemplatingFile($event, file, removeFileCallback, i)"
+                  class="p-button-outlined p-button-rounded p-button-danger"></button>
               </div>
             </div>
 
             <div *ngIf="uploadedFiles?.length > 0">
               <h5>Completed</h5>
               <div class="flex flex-wrap gap-4">
-                <div *ngFor="let file of uploadedFiles; let i = index" class="card m-0 px-12 flex border border-surface items-center gap-4">
-                  <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
+                <div *ngFor="let file of uploadedFiles; let i = index"
+                  class="card m-0 px-12 flex border border-surface items-center gap-4">
+                  <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name
+                    }}</span>
                   <div>{{ formatSize(file.size) }}</div>
                   <p-badge value="Completed" class="mt-4" severity="success"></p-badge>
-                  <button pButton icon="pi pi-times" (click)="removeUploadedFileCallback(i)" class="p-button-outlined"></button>
+                  <button pButton icon="pi pi-times" (click)="removeUploadedFileCallback(i)"
+                    class="p-button-outlined"></button>
                 </div>
               </div>
             </div>
@@ -90,6 +102,9 @@
         </ng-template>
       </p-fileupload>
     </div>
+    <div class="flex justify-center">
+      <!-- cards -->
+      <app-card-simples></app-card-simples>
+    </div>
   </div>
 </div>
-<!-- ...existing code... -->
