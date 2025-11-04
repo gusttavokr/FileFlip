@@ -1,8 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ArquivoService, Arquivo } from '../../service/arquivo';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
-import { signal } from '@angular/core';
 import { CardModule } from 'primeng/card';
 
 @Component({

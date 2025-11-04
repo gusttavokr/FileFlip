@@ -1,23 +1,38 @@
-<div class="card">
-    <p-menubar [model]="items" class="text-center justify-center !bg-transparent !border-0">
-      <!-- start slot correto -->
-      <ng-template pTemplate="start">
-        <img src="logotipo.svg" alt="">
-      </ng-template>
+<div class="flex items-center p-4 justify-between">
+  <a [routerLink]="['/']"><img src="logotipo.svg" alt="FileFlip Logo" /></a>
 
-      <!-- item template correto -->
-      <ng-template pTemplate="item" let-item let-root="root">
-        <a pRipple class="flex items-center p-menubar-item-link">
-          <span>{{ item.label }}</span>
-          <p-badge *ngIf="item.badge" [ngClass]="{ 'ml-auto': !root, 'ml-2': root }" [value]="item.badge" />
-          <span *ngIf="item.shortcut" class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">{{ item.shortcut }}</span>
-          <i *ngIf="item.items" [ngClass]="['ml-auto pi', root ? 'pi-angle-down' : 'pi-angle-right']"></i>
-        </a>
-      </ng-template>
+  <ul class="flex gap-10 text-center text-[#03133A]">
+    <li *ngFor="let item of items; trackBy: trackByLabel">
+      <i class="{{item.icon}} mr-2"></i>
+      <a [routerLink]="item.routerLink" routerLinkActive="active-link"
+        class="header-link text-[#03133A] mt-0.5 group inline-block relative pb-1 transition-colors duration-200 ease-in-out hover:text-[#03133A] focus:outline-none focus:ring-2 focus:ring-sky-200">
+        {{ item.label }}
+        <span
+          class="absolute left-0 bottom-0 h-0.5 bg-blue-600 w-0 group-hover:w-full transition-all duration-200"></span>
+      </a>
+    </li>
+  </ul>
 
-      <!-- end slot correto -->
-      <ng-template pTemplate="end">
-        <p-avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
-      </ng-template>
-    </p-menubar>
+  <div class="flex gap-4 items-center">
+    <a [routerLink]="['/registro']" routerLinkActive="active-link"
+      class="text-[#03133A] mt-0.5 group inline-block relative pb-1 transition-colors duration-200 ease-in-out hover:text-[#03133A] focus:outline-none">
+      Cadastrar-se
+      <!-- underline absoluto: não afeta layout -->
+      <span
+        class="absolute left-0 bottom-0 h-0.5 bg-blue-600 w-0 group-hover:w-full transition-all duration-200"></span>
+    </a>
+    <button
+      [routerLink]="['/meus-arquivos']" routerLinkActive="active-link"
+      class="bg-blue-600 hover:bg-[#03133A] transition-colors duration-200 ease-in-out cursor-pointer text-white font-normal py-3 px-4 rounded flex justify-center items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="lucide lucide-log-in-icon lucide-log-in">
+        <path d="m10 17 5-5-5-5" />
+        <path d="M15 12H3" />
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+      </svg>
+      <span>Entrar</span>
+    </button>
   </div>
+
+</div>
