@@ -1,5 +1,5 @@
 <div class="flex items-center p-4 justify-between">
-  <img src="logotipo.svg" alt="FileFlip Logo" />
+  <a [routerLink]="['/']"><img src="logotipo.svg" alt="FileFlip Logo" /></a>
 
   <ul class="flex gap-10 text-center text-[#03133A]">
     <li *ngFor="let item of items; trackBy: trackByLabel">
@@ -14,8 +14,8 @@
   </ul>
 
   <div class="flex gap-4 items-center">
-    <a href=""
-      class="text-[#03133A] mt-0.5 group inline-block relative pb-1 transition-colors duration-200 ease-in-out hover:text-[#03133A] focus:outline-none focus:ring-2 focus:ring-sky-200">
+    <a [routerLink]="['/registro']" routerLinkActive="active-link"
+      class="text-[#03133A] mt-0.5 group inline-block relative pb-1 transition-colors duration-200 ease-in-out hover:text-[#03133A] focus:outline-none">
       Cadastrar-se
       <!-- underline absoluto: não afeta layout -->
       <span
