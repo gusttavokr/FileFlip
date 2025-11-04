@@ -15,9 +15,9 @@ import { CommonModule } from '@angular/common';
   ],
   providers: [CardSimplesService],
   template: `
-        <div class="flex flex-wrap gap-20 justify-center">
+        <div class="flex flex-wrap gap-10 justify-center">
           @for (card of cards(); track card.titulo;){
-            <p-card class="max-w-[300px] items-center !bg-[#ffffff] !text-[#020035] text-center justify-center">
+            <p-card class="max-w-[330px] items-center !bg-[#ffffff] !text-[#020035] text-center justify-center">
                 <div class="w-full flex justify-center">
                     <p-avatar size="large" shape="circle" class="mb-2 !bg-[#2D69FF] flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#ffffff" viewBox="0 0 256 256">

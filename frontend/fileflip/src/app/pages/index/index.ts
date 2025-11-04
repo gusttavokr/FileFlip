@@ -88,7 +88,7 @@ export class Index {
 
   onSubmit(form: any) {
         if (form.valid) {
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Form Submitted', life: 3000 });
+            this.messageService.add({ severity: 'success', summary: 'Sucesso!', detail: 'Seus arquivos estão sendo convertidos.', life: 3000 });
             form.resetForm();
         }
     }

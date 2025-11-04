@@ -6,20 +6,22 @@
       Converta seus arquivos na melhor plataforma <b>da América!</b> 🌎
     </p>
 
-    <div class="card max-w-3xl mx-auto mt-8 h-96 md:h-96 lg:h-[28rem]">
+    <!-- <div class="card max-w-3xl mx-auto mt-8 h-96 md:h-96 lg:h-[28rem]"> -->
+    <div class="card max-w-3xl mx-auto mt-8 h-[22rem] overflow-hidden mb-10">
       <p-toast></p-toast>
-      <p-fileupload styleClass="h-[380px]" name="myfile[]" url="https://www.primefaces.org/cdn/api/upload.php"
-        [multiple]="true" maxFileSize="1000000" (onUpload)="onTemplatedUpload()" (onSelect)="onSelectedFiles($event)">
+      <p-fileupload styleClass="h-full overflow-y-auto" name="myfile[]"
+        url="https://www.primefaces.org/cdn/api/upload.php" [multiple]="true" maxFileSize="1000000"
+        (onUpload)="onTemplatedUpload()" (onSelect)="onSelectedFiles($event)">
 
         <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback"
           let-uploadCallback="uploadCallback">
-          <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
+          <div class="flex flex-wrap justify-between items-center flex-1 gap-4 pb-10">
             <div class="flex gap-2">
               <button pButton type="button" (click)="choose($event, chooseCallback)" icon="pi pi-images"
                 class="p-button-outlined p-button-rounded"></button>
-              <button pButton type="button" (click)="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload"
+              <!-- <button pButton type="button" (click)="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload"
                 class="p-button-outlined p-button-rounded p-button-success"
-                [disabled]="!files || files.length === 0"></button>
+                [disabled]="!files || files.length === 0"></button> -->
               <button pButton type="button" (click)="clearCallback()" icon="pi pi-times"
                 class="p-button-outlined p-button-rounded p-button-danger"
                 [disabled]="!files || files.length === 0"></button>
@@ -38,55 +40,56 @@
 
 
         <ng-template #empty>
-          <div class="flex items-center justify-center flex-col">
+          <div class="flex items-center justify-center flex-col h-full">
             <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color"></i>
-            <p class="mt-6 mb-0">Drag and drop files to here to upload.</p>
+            <p class="mt-6 mb-0">Arraste e solte os arquivos aqui para fazer o upload.</p>
           </div>
         </ng-template>
 
         <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback"
           let-removeUploadedFileCallback="removeUploadedFileCallback">
-          <div class="flex flex-col gap-8 pt-4">
-
-
-            <div class="flex flex-wrap gap-4">
-              <div *ngFor="let file of files; let i = index"
-                class="p-8 rounded-border flex border border-surface items-center gap-4">
-                <div>
-                  <img role="presentation" [alt]="file.name" [src]="file.objectURL" width="100" />
-                </div>
-
-                <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name
-                  }}</span>
-                <div>{{ formatSize(file.size) }}</div>
-                <p-badge value="Pending" severity="warn"></p-badge>
-                <button pButton icon="pi pi-times" (click)="onRemoveTemplatingFile($event, file, removeFileCallback, i)"
-                  class="p-button-outlined p-button-rounded p-button-danger"></button>
-              </div>
-            </div>
-
-            <div *ngIf="files?.length > 0">
-              <p-toast></p-toast>
-              <div class="card">
-                <form #exampleForm="ngForm" (ngSubmit)="onSubmit(exampleForm)"
-                  class="flex flex-col gap-4 w-full w-full">
-                  <div class="flex flex-col gap-1">
-                    <p-select #city="ngModel" name="city" [(ngModel)]="formatoSelecionado" [options]="formatos"
-                      [invalid]="city.invalid && (city.touched || exampleForm['submitted'])" optionLabel="name"
-                      placeholder="Selecione o formato" class="w-full md:w-56" required>
-                    </p-select>
-
-                    <ng-container *ngIf="city.invalid && (city.touched || exampleForm['submitted'])">
-                      <p-message severity="error" size="small" variant="simple">O formato é obrigatório.</p-message>
-                    </ng-container>
+          <ng-container *ngIf="files?.length > 0">
+            <div class="flex flex-col gap-4 pt-4 max-h-[calc(100vh-400px)] overflow-y-auto">
+              <div class="flex flex-wrap gap-4">
+                <div *ngFor="let file of files; let i = index"
+                  class="p-4 rounded-border flex border border-surface items-center gap-4">
+                  <div class="w-[50px] h-[50px] flex items-center justify-center overflow-hidden">
+                    <img role="presentation" [alt]="file.name" [src]="file.objectURL"
+                      class="w-full h-full object-cover" />
                   </div>
 
-                  <button pButton type="submit" label="Converter"
-                    class="bg-blue-600 border-0 hover:bg-[#03133A] w-full"></button>
-                </form>
+                  <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name
+                    }}</span>
+                  <div>{{ formatSize(file.size) }}</div>
+                  <p-badge value="Pending" severity="warn"></p-badge>
+                  <button pButton icon="pi pi-times"
+                    (click)="onRemoveTemplatingFile($event, file, removeFileCallback, i)"
+                    class="p-button-outlined p-button-rounded p-button-danger"></button>
+                </div>
               </div>
-            </div>
-            <div *ngIf="uploadedFiles?.length > 0">
+
+              <div *ngIf="files?.length > 0">
+                <p-toast></p-toast>
+                <div class="card">
+                  <form #exampleForm="ngForm" (ngSubmit)="onSubmit(exampleForm)"
+                    class="flex flex-col gap-0 w-full w-full">
+                    <div class="flex flex-col gap-4">
+                      <p-select #city="ngModel" name="city" [(ngModel)]="formatoSelecionado" [options]="formatos"
+                        [invalid]="city.invalid && (city.touched || exampleForm['submitted'])" optionLabel="name"
+                        placeholder="Selecione o formato" class="w-full md:w-56" appendTo="body" required>
+                      </p-select>
+
+                      <ng-container *ngIf="city.invalid && (city.touched || exampleForm['submitted'])">
+                        <p-message severity="error" size="small" variant="simple">O formato é obrigatório.</p-message>
+                      </ng-container>
+                      <button pButton type="submit" label="Converter"
+                        class="bg-blue-600 border-0 hover:bg-[#03133A] w-full"></button>
+                    </div>
+
+                  </form>
+                </div>
+              </div>
+              <!-- <div *ngIf="uploadedFiles?.length > 0">
               <h5>Completed</h5>
               <div class="flex flex-wrap gap-4">
                 <div *ngFor="let file of uploadedFiles; let i = index"
@@ -99,8 +102,9 @@
                     class="p-button-outlined"></button>
                 </div>
               </div>
+            </div> -->
             </div>
-          </div>
+          </ng-container>
         </ng-template>
       </p-fileupload>
     </div>
