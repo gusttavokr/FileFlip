@@ -1,0 +1,61 @@
+<div class="flex justify-center items-center min-h-[calc(100vh-300px)]">
+
+    <div class="flex justify-between gap-100 pl-20 pr-20">
+        <div class="items-center text-center justify-center">
+            <img src="logo.svg" width="300" alt="Logo">
+        </div>
+        <div class="flex flex-col items-center justify-center">
+            <h1 class="text-7xl font-extrabold text-center text-blue-600">Login</h1>
+            <p class="text-center font-normal mt-4 text-[#03133A]">
+                Acesse agora a melhor <b>plataforma de conversão de arquivos</b> da América! 🌎
+            </p>
+
+            <div class="flex flex-col gap-6 w-full pt-10">
+                <!-- Nome -->
+                <div class="flex flex-col flex-1">
+                    <label for="username" class="mb-1 flex items-center gap-2">
+                        <i class="pi pi-user"></i> E-mail ou nome de usuário
+                    </label>
+                    <input id="username" pInputText [(ngModel)]="username" placeholder="Digite seu e-mail ou nome de usuário"
+                        class="w-full" />
+                </div>
+                <!-- Senha -->
+                <div class="flex flex-col flex-1">
+                    <label for="senha" class="mb-1 flex items-center gap-2">
+                        <i class="pi pi-lock"></i> Senha
+                    </label>
+                    <p-password inputId="senha" [(ngModel)]="senha" [toggleMask]="true" [styleClass]="'w-full'"
+                        [inputStyleClass]="'w-full'" placeholder="Digite sua senha" />
+                </div>
+            </div>
+
+            <div class="flex flex-col justify-end items-end w-full pt-[1.5rem]">
+                <a [routerLink]="['/registro']" routerLinkActive="active-link"
+                    class="text-gray-600 mt-0.5 group inline-block relative pb-1 transition-colors duration-200 ease-in-out hover:text-gray-600 focus:outline-none">
+                    Não possuo uma conta!
+                    <!-- underline absoluto: não afeta layout -->
+                    <span
+                        class="absolute left-0 bottom-0 h-0.5 bg-blue-600 w-0 group-hover:w-full transition-all duration-200"></span>
+                </a>
+
+                <div class="w-full mt-6">
+                    <button
+                        [routerLink]="['/meus-arquivos']" class="bg-blue-600 w-full hover:bg-[#03133A] transition-colors duration-200 ease-in-out cursor-pointer text-white font-normal py-3 px-4 rounded flex justify-center items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-log-in-icon lucide-log-in">
+                            <path d="m10 17 5-5-5-5" />
+                            <path d="M15 12H3" />
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                        </svg>
+                        <span>Entrar</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
