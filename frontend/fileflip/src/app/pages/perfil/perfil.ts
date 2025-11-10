@@ -3,19 +3,21 @@ import { ArquivoService, Arquivo } from '../../service/arquivo';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
-    selector: 'app-arquivos',
-    templateUrl: './arquivos.html',
+    selector: 'app-perfil',
+    templateUrl: './perfil.html',
     standalone: true,
     imports: [
         ButtonModule, 
         CommonModule, 
         CardModule, 
+        SkeletonModule
     ],
     providers: [ArquivoService]
 })
-export class Arquivos {
+export class Perfil {
     arquivos = signal<Arquivo[]>([]);
 
     constructor(private arquivoService: ArquivoService) {}
