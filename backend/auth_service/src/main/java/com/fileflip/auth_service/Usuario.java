@@ -28,6 +28,7 @@ public class Usuario {
     @Column (nullable = false)
     private String password;
 
-    @OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    // Um usuário pode ter muitos arquivos
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Arquivo> arquivos;
 }

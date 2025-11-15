@@ -28,5 +28,6 @@ public class Arquivo {
     private long tamanho;
 
     @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false) // um usuário pode ter muitos arquivos
     private Usuario usuario;
 }
