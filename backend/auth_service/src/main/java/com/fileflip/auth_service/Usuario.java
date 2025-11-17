@@ -1,6 +1,6 @@
 package com.fileflip.auth_service;
 
-import com.fileflip.arquivo_service.Arquivo;
+//import com.fileflip.arquivo_service.Arquivo;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +29,6 @@ public class Usuario {
     private String password;
 
     // Um usuário pode ter muitos arquivos
-    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Arquivo> arquivos;
+    // @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    // private List<Arquivo> arquivos;
 }

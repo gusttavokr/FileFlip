@@ -1,5 +1,6 @@
 package com.fileflip.arquivo_service;
 
+import lombok.Data;
 
 @Data
 public class ConvertioResponse {

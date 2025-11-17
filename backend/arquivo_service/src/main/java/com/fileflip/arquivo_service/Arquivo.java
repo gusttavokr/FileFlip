@@ -3,7 +3,7 @@ package com.fileflip.arquivo_service;
 import jakarta.persistence.*;
 import lombok.*;
 
-import com.fileflip.auth_service.Usuario;
+//import com.fileflip.auth_service.Usuario;
 
 import java.util.UUID;
 
@@ -27,7 +27,7 @@ public class Arquivo {
     @Column(name="file_size")
     private long tamanho;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false) // um usuário pode ter muitos arquivos
-    private Usuario usuario;
+    // @ManyToOne
+    // @JoinColumn(name = "user_id", nullable = false) // um usuário pode ter muitos arquivos
+    // private Usuario usuario;
 }
