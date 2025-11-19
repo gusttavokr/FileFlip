@@ -30,15 +30,15 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
+
+		<!-- SWAGGER -->
         <dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.8.1</version> <!-- Ou superior compatível com Spring Boot 3.5.x -->
+			<version>2.8.1</version> 
 		</dependency>
 
-
-
-
+		<!-- POSTGRESQL -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -46,26 +46,32 @@
             <scope>runtime</scope>
         </dependency>
 
+		<!-- Dependência pro módulo de arquivo -->
+        <!-- <dependency>
+           <groupId>com.fileflip</groupId>
+           <artifactId>arquivo_service</artifactId>
+           <version>0.0.1-SNAPSHOT</version>
+        </dependency> -->
 
-        <!--        <dependency>-->
-<!--            <groupId>com.fileflip</groupId>-->
-<!--            <artifactId>arquivo_service</artifactId>-->
-<!--            <version>0.0.1-SNAPSHOT</version>-->
-<!--        </dependency>-->
-
-
+		<!-- JPA -->
         <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+		
+		<!-- oAuth2 Server -->
 		<!-- <dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-hateoas</artifactId>
+			<artifactId>spring-boot-starter-oauth2-authorization-server</artifactId>
 		</dependency> -->
+
+		<!-- oAuth2 Client -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-authorization-server</artifactId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
 		</dependency>
+
+		<!-- Token Jwt -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-jose</artifactId>
