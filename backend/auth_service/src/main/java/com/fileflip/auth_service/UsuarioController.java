@@ -13,13 +13,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/usuarios")
 @Tag(name = "Usuários", description = "Gerencia as operações de usuário")
 public class UsuarioController {
 
-    private UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
 
     public UsuarioController(UsuarioService usuarioService){
         this.usuarioService = usuarioService;
@@ -41,18 +42,22 @@ public class UsuarioController {
 
     @Operation(summary = "Atualizar usuário existente", description = "Atualiza os dados de um usuário existente")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Usuário atualizado com sucesso"),
+            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Requisição inválida"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
     @PutMapping ("/{id}")
     public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(
-            @Parameter(description = "ID do usuário a ser atualizado", example = "1") @PathVariable UUID id,
+            @Parameter(description = "ID do usuário a ser atualizado", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") @PathVariable UUID id,
             @Parameter(description = "Novos dados do usuário") @Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO){
         UsuarioResponseDTO usuarioAtualizado = usuarioService.atualizar(id, usuarioRequestDTO);
         return ResponseEntity.ok(usuarioAtualizado);
     }
 
-//    @GetMapping
-//    public ResponseEntity<UsuarioResponseDTO> listarUsuarios()
+    @Operation(summary = "Listar usuários existentes", description = "Lista todos os usuários cadastrados no sistema")
+    @GetMapping
+    public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios(){
+        List<UsuarioResponseDTO> usuarios = usuarioService.listar();
+        return ResponseEntity.status(HttpStatus.OK).body(usuarios);
+    }
 }

@@ -6,6 +6,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -48,6 +49,14 @@ public class UsuarioService {
         }
 
         return usuarioMapper.toResponseDTO(usuarioRepository.save(usuario));
+    }
+
+    public List<UsuarioResponseDTO> listar() {
+
+        return usuarioRepository.findAll()
+                .stream()
+                .map(usuarioMapper::toResponseDTO)
+                .toList();
     }
 
     // Deletar usuário
