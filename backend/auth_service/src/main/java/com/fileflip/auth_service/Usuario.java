@@ -28,6 +28,24 @@ public class Usuario {
     @Column (nullable = false)
     private String password;
 
+    @Column(unique = true)
+    private String googleId; 
+
+    @Column(length = 500)
+    private String googleAccessToken; 
+
+    @Column(length = 500)
+    private String googleRefreshToken; 
+
+    @Column
+    private String googleName; // opcional: nome do Google
+
+    @Column
+    private String googlePictureUrl; // opcional: avatar do Google
+
+    @Column
+    private Boolean googleVinculado = false;
+
     // Um usuário pode ter muitos arquivos
     // @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     // private List<Arquivo> arquivos;

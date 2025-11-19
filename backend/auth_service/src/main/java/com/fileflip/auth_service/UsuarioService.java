@@ -1,10 +1,14 @@
 package com.fileflip.auth_service;
 
-import com.fileflip.auth_service.DTOs.UsuarioRequestDTO;
-import com.fileflip.auth_service.DTOs.UsuarioResponseDTO;
+import com.fileflip.auth_service.DTOs.*;
+
 import jakarta.persistence.EntityNotFoundException;
+
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fileflip.auth_service.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -66,5 +70,39 @@ public class UsuarioService {
             throw new EntityNotFoundException("O usuário de id: " + id + " não foi encontrado.");
         }
         usuarioRepository.deleteById(id);
+    }
+
+    // Autenticar com o Google
+    @Transactional
+    public UsuarioResponseDTO vincularGoogle(UUID id, String googleId, 
+        String googleName, String googlePictureUrl,
+        String googleAccessToken, String googleRefreshToken){
+
+            Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário " + id + " não foi encontrado"));
+
+            usuario.setGoogleId(googleId);
+            usuario.setGoogleName(googleName);
+            usuario.setGooglePictureUrl(googlePictureUrl);
+            usuario.setGoogleAccessToken(googleAccessToken);
+            usuario.setGoogleRefreshToken(googleRefreshToken);
+
+            usuarioRepository.save(usuario);
+
+            UsuarioResponseDTO response = usuarioMapper.toResponseDTO(usuario);
+
+            return response;
+    }
+
+    // Login
+    public LoginResponseDTO login(String email, String password){
+        Usuario usuario = usuarioRepository.findByEmail(email)
+            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
+        if (!PasswordEncoder.matches(password, usuario.getPassword())) {
+            throw new BadCredentialsException("Senha inválida");
+        } 
+
+        
     }
 }

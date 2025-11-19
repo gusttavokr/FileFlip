@@ -13,4 +13,7 @@ public class UsuarioResponseDTO {
     private UUID id;
     private String username;
     private String email;
+    private Boolean googleVinculado;
+    private String googleName;
+    private String googlePictureUrl;
 }
