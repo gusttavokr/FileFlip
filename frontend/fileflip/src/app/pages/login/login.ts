@@ -11,8 +11,8 @@ import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 
 @Component({
-    selector: 'app-registro',
-    templateUrl: './registro.html',
+    selector: 'app-login',
+    templateUrl: './login.html',
     standalone: true,
     imports: [
         FormsModule, 
@@ -26,7 +26,7 @@ import { RouterModule } from '@angular/router';
         RouterModule
     ]
 })
-export class Registro {
+export class Login {
     constructor(private router: Router) {}
     username: string | undefined;
 

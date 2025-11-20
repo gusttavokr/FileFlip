@@ -1,35 +1,32 @@
-export class Usuario {
-    
-    constructor(
-        private nome: string,
-        private email: string,
-        private telefone: string,
-        private foto_perfil: string
-    ) {}
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
 
-    getNome(): string {
-        return this.nome;
-    }
+export interface Usuario {
+  id: string;
+  nome: string;
+  email: string;
+  foto_perfil: string;
+  qtd_arquivos: number;
+}
 
-    getEmail(): string {
-        return this.email;
-    }
+@Injectable({
+  providedIn: 'root',
+})
 
-    getTelefone(): string {
-        return this.telefone;
-    }
+export class UsuarioService {
+  private usuarios: Usuario[] = [
+    {
+      id: '1',
+      nome: "Histórico acadêmico",
+      email: 'gustavommilitaoo@gmail.com',
+      foto_perfil: 'https://randomuser.me/api/portraits/men/5.jpg',
+      qtd_arquivos: 5,
+    },
+  ];
 
-    getFotoPerfil(): string {
-        return this.foto_perfil;
-    }
+  constructor() {}
 
-
-    setNome(novoNome: string): void {
-        this.nome = novoNome;
-    }
-
-    setEmail(novoEmail: string): void {
-        this.email = novoEmail;
-    }
-
+  getUsuarios(): Observable<Usuario[]> {
+    return of(this.usuarios);
+  }
 }
