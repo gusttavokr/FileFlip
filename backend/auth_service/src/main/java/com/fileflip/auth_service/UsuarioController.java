@@ -1,10 +1,6 @@
 package com.fileflip.auth_service;
 
-import com.fileflip.auth_service.DTOs.LoginRequestDTO;
-import com.fileflip.auth_service.DTOs.LoginResponseDTO;
-import com.fileflip.auth_service.DTOs.UsuarioRequestDTO;
-import com.fileflip.auth_service.DTOs.UsuarioResponseDTO;
-import com.fileflip.auth_service.DTOs.VincularGoogleDTO;
+import com.fileflip.auth_service.DTOs.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -27,21 +22,19 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
-    public UsuarioController(UsuarioService usuarioService, UsuarioRepository usuarioRepository,
-        UsuarioMapper usuarioMapper, PasswordEncoder passwordEncoder
-    ){
+    public UsuarioController(UsuarioService usuarioService){
         this.usuarioService = usuarioService;
     }
 
     // Vínculo google
     @Operation(summary = "Vínculo com Google", description = "O usuário vincula sua conta do FileFlip com alguma do Google")
     @PostMapping("/{id}/vincular-google")
-    public ResponseEntity<UsuarioResponseDTO> vincularGoogle(
+    public ResponseEntity<VincularGoogleResponseDTO> vincularGoogle(
         @Parameter(description="ID do usuário")
         @PathVariable UUID id,
-        @Valid @RequestBody VincularGoogleDTO googleDTO
+        @Valid @RequestBody VincularGoogleRequestDTO googleDTO
     ) {
-        UsuarioResponseDTO usuarioAtualizado = usuarioService.vincularGoogle(id, 
+        VincularGoogleResponseDTO usuarioAtualizado = usuarioService.vincularGoogle(id,
             googleDTO.getGoogleId(),
             googleDTO.getGoogleName(),
             googleDTO.getGooglePictureUrl(),
@@ -58,7 +51,7 @@ public class UsuarioController {
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginRequest
     ) {
         LoginResponseDTO response = usuarioService.login(loginRequest.getEmail(), loginRequest.getPassword());
-        return ResponseEntity.ok()
+        return ResponseEntity.ok(response);
     }
 
 //    Criação de novo usuário

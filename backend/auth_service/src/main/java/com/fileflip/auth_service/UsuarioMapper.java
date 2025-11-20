@@ -2,8 +2,9 @@ package com.fileflip.auth_service;
 
 import com.fileflip.auth_service.DTOs.UsuarioRequestDTO;
 import com.fileflip.auth_service.DTOs.UsuarioResponseDTO;
-import com.fileflip.auth_service.DTOs.VincularGoogleDTO;
+import com.fileflip.auth_service.DTOs.VincularGoogleRequestDTO;
 
+import com.fileflip.auth_service.DTOs.VincularGoogleResponseDTO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,15 +35,16 @@ public class UsuarioMapper {
         return dto;
     }
 
-    public VincularGoogleDTO toGoogleDTO(Usuario usuario){
+    public VincularGoogleResponseDTO toGoogleDTO(Usuario usuario){
         if (usuario == null){
             return null;
         }
 
-        var dto = new VincularGoogleDTO();
+        var dto = new VincularGoogleResponseDTO();
         dto.setGoogleId(usuario.getGoogleId());
         dto.setGoogleName(usuario.getGoogleName());
         dto.setGooglePictureUrl(usuario.getGooglePictureUrl());
+        dto.setGoogleVinculado(usuario.getGoogleVinculado());
         return dto;
     }
 }

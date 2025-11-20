@@ -5,11 +5,14 @@ import com.fileflip.auth_service.DTOs.*;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 
-import com.fileflip.auth_service.*;
-
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,16 +20,24 @@ import java.util.UUID;
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtEncoder jwtEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper){
+    public UsuarioService(UsuarioRepository usuarioRepository,
+                          UsuarioMapper usuarioMapper,
+                          BCryptPasswordEncoder passwordEncoder,
+                          JwtEncoder jwtEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioMapper = usuarioMapper;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtEncoder = jwtEncoder;
     }
 
     // Criar usuário
     @Transactional
     public UsuarioResponseDTO criar(UsuarioRequestDTO dto){
         Usuario usuario = usuarioMapper.toEntity(dto);
+        usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
         usuarioRepository.save(usuario);
         return usuarioMapper.toResponseDTO(usuario);
     }
@@ -74,9 +85,8 @@ public class UsuarioService {
 
     // Autenticar com o Google
     @Transactional
-    public UsuarioResponseDTO vincularGoogle(UUID id, String googleId, 
-        String googleName, String googlePictureUrl,
-        String googleAccessToken, String googleRefreshToken){
+    public VincularGoogleResponseDTO vincularGoogle(UUID id, String googleId,
+                                                   String googleName, String googlePictureUrl, String googleAccessToken, String googleRefreshToken){
 
             Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário " + id + " não foi encontrado"));
@@ -86,23 +96,35 @@ public class UsuarioService {
             usuario.setGooglePictureUrl(googlePictureUrl);
             usuario.setGoogleAccessToken(googleAccessToken);
             usuario.setGoogleRefreshToken(googleRefreshToken);
+            usuario.setGoogleVinculado(true);
 
             usuarioRepository.save(usuario);
 
-            UsuarioResponseDTO response = usuarioMapper.toResponseDTO(usuario);
+            VincularGoogleResponseDTO resposta = usuarioMapper.toGoogleDTO(usuario);
 
-            return response;
+            return resposta;
     }
 
     // Login
     public LoginResponseDTO login(String email, String password){
         Usuario usuario = usuarioRepository.findByEmail(email)
-            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
-        if (!PasswordEncoder.matches(password, usuario.getPassword())) {
+        if (!passwordEncoder.matches(password, usuario.getPassword())) {
             throw new BadCredentialsException("Senha inválida");
-        } 
+        }
 
-        
+        var expiresIn = 300L;
+        var now = Instant.now();
+
+        var claims = JwtClaimsSet.builder()
+                .issuer("fileflip_backend")
+                .subject(usuario.getUserId().toString())
+                .expiresAt(now.plusSeconds(expiresIn))
+                .build();
+
+        var JwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        return new LoginResponseDTO(JwtValue, usuario.getEmail(), usuario.getUsername());
+
     }
 }
