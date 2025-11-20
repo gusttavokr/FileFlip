@@ -51,8 +51,10 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/api/v1/usuarios/login",
                                 "/api/v1/usuarios"
+                                // adicione aqui qualquer rota pública de frontend
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/v1/usuarios/**/vincular-google").authenticated()
+                        .anyRequest().permitAll() // ou authenticated() se quiser proteger tudo
                 )
                 .csrf(csrf -> csrf.disable())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
@@ -60,6 +62,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
+
 
 
     @Bean
