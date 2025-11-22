@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -18,6 +19,9 @@ public class ConversaoRequest {
     @Schema(description = "Tipo do novo arquivo", example = "DOCX")
     private ArquivoType novoTipo;
 
-    @Schema(description = "ID do arquivo a ser convertido", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
-    private UUID arquivoId;
+    @NotNull(message = "O campo 'arquivo' é obrigatório")
+    @Schema(description = "Dados do arquivo original")
+    private MultipartFile arquivo;
+//    @Schema(description = "ID do arquivo a ser convertido", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+//    private UUID arquivoId;
 }

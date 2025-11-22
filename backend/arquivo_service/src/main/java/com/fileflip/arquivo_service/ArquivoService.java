@@ -1,0 +1,129 @@
+package com.fileflip.arquivo_service;
+
+import com.fileflip.arquivo_service.DTOs.ArquivoRequest;
+import com.fileflip.arquivo_service.DTOs.ConversaoRequest;
+import com.fileflip.arquivo_service.DTOs.ConversaoResponse;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.UUID;
+
+@Service
+public class ArquivoService {
+
+    @Value("${convertio.apikey}")
+    private String convertioApiKey;
+    private final ArquivoRepository arquivoRepository;
+    private final ArquivoMapper arquivoMapper;
+
+    public ArquivoService(ArquivoMapper arquivoMapper, ArquivoRepository arquivoRepository){
+        this.arquivoRepository = arquivoRepository;
+        this.arquivoMapper = arquivoMapper;
+    }
+
+    @Transactional
+    public ConversaoResponse converterArquivo(ConversaoRequest request) throws IOException {
+        MultipartFile arquivo = request.getArquivo();
+        ArquivoType novoTipo = request.getNovoTipo();
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        String base64File = java.util.Base64.getEncoder().encodeToString(arquivo.getBytes());
+
+        Map<String, Object> body = Map.of(
+                "apikey", convertioApiKey,
+                "input", "base64",
+                "file", base64File,
+                "filename", arquivo.getOriginalFilename(),
+                "outputformat", novoTipo.name().toLowerCase()
+        );
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        // 1) cria o job
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                "https://api.convertio.co/convert",
+                HttpMethod.POST,
+                requestEntity,
+                new ParameterizedTypeReference<Map<String, Object>>() {
+                }
+        );
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = response.getBody();
+        if (responseBody == null || !responseBody.containsKey("data")) {
+            throw new IllegalStateException("Resposta inválida da Convertio");
+        }
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> data = (Map<String, Object>) responseBody.get("data");
+        String jobId = (String) data.get("id");
+
+        // 2) polling de status até ter output com URL ou estourar o tempo
+        // 2) polling de status até ter output com URL ou estourar o tempo
+        String statusUrl = "https://api.convertio.co/convert/" + jobId + "/status";
+
+        String downloadUrl = null;
+
+        for (int i = 0; i < 15; i++) { // tenta ~15 vezes
+            ResponseEntity<Map<String, Object>> statusResponse = restTemplate.exchange(
+                    statusUrl,
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    }
+            );
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> statusBody = statusResponse.getBody();
+            System.out.println("STATUS CONVERTIO: " + statusBody);
+
+            if (statusBody == null || !statusBody.containsKey("data")) {
+                throw new IllegalStateException("Resposta de status inválida da Convertio");
+            }
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> statusData = (Map<String, Object>) statusBody.get("data");
+            String step = (String) statusData.get("step"); // "convert" ou "finish"
+
+            // quando terminar, output é um Map com url/size
+            Object outputObj = statusData.get("output");
+            if ("finish".equalsIgnoreCase(step) && outputObj instanceof Map<?, ?> outputMap) {
+                Object urlObj = outputMap.get("url");
+                if (urlObj instanceof String urlStr) {
+                    downloadUrl = urlStr;
+                    break;
+                }
+            }
+
+            try {
+                Thread.sleep(2000); // 2 segundos
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Polling interrompido", e);
+            }
+        }
+
+        if (downloadUrl == null) {
+            throw new IllegalStateException("Conversão não finalizou dentro do tempo esperado");
+        }
+
+        return new ConversaoResponse(
+                "Conversão concluída. Id: " + jobId,
+                downloadUrl
+        );
+    }
+}
+
