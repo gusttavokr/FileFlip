@@ -1,16 +1,12 @@
 package com.fileflip.arquivo_service;
 
-import com.fileflip.arquivo_service.DTOs.ArquivoRequest;
 import com.fileflip.arquivo_service.DTOs.ConversaoRequest;
 import com.fileflip.arquivo_service.DTOs.ConversaoResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,10 +19,11 @@ public class ArquivoService {
 
     @Value("${convertio.apikey}")
     private String convertioApiKey;
+
     private final ArquivoRepository arquivoRepository;
     private final ArquivoMapper arquivoMapper;
 
-    public ArquivoService(ArquivoMapper arquivoMapper, ArquivoRepository arquivoRepository){
+    public ArquivoService(ArquivoMapper arquivoMapper, ArquivoRepository arquivoRepository) {
         this.arquivoRepository = arquivoRepository;
         this.arquivoMapper = arquivoMapper;
     }
@@ -52,13 +49,12 @@ public class ArquivoService {
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        // 1) cria o job
+        // 1) cria o job na Convertio
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                 "https://api.convertio.co/convert",
                 HttpMethod.POST,
                 requestEntity,
-                new ParameterizedTypeReference<Map<String, Object>>() {
-                }
+                new ParameterizedTypeReference<Map<String, Object>>() {}
         );
 
         @SuppressWarnings("unchecked")
@@ -71,19 +67,18 @@ public class ArquivoService {
         Map<String, Object> data = (Map<String, Object>) responseBody.get("data");
         String jobId = (String) data.get("id");
 
-        // 2) polling de status até ter output com URL ou estourar o tempo
-        // 2) polling de status até ter output com URL ou estourar o tempo
+        // 2) polling de status até ter URL ou estourar o tempo
         String statusUrl = "https://api.convertio.co/convert/" + jobId + "/status";
 
         String downloadUrl = null;
+        long tamanhoConvertido = 0L;
 
         for (int i = 0; i < 15; i++) { // tenta ~15 vezes
             ResponseEntity<Map<String, Object>> statusResponse = restTemplate.exchange(
                     statusUrl,
                     HttpMethod.GET,
                     new HttpEntity<>(headers),
-                    new ParameterizedTypeReference<Map<String, Object>>() {
-                    }
+                    new ParameterizedTypeReference<Map<String, Object>>() {}
             );
 
             @SuppressWarnings("unchecked")
@@ -98,15 +93,30 @@ public class ArquivoService {
             Map<String, Object> statusData = (Map<String, Object>) statusBody.get("data");
             String step = (String) statusData.get("step"); // "convert" ou "finish"
 
-            // quando terminar, output é um Map com url/size
             Object outputObj = statusData.get("output");
             if ("finish".equalsIgnoreCase(step) && outputObj instanceof Map<?, ?> outputMap) {
                 Object urlObj = outputMap.get("url");
+                Object sizeObj = outputMap.get("size");
+
                 if (urlObj instanceof String urlStr) {
                     downloadUrl = urlStr;
+                }
+
+                if (sizeObj instanceof Number n) {
+                    tamanhoConvertido = n.longValue();
+                } else if (sizeObj instanceof String s) {
+                    try {
+                        tamanhoConvertido = Long.parseLong(s);
+                    } catch (NumberFormatException e) {
+                        tamanhoConvertido = 0L; // fallback
+                    }
+                }
+
+                if (downloadUrl != null) {
                     break;
                 }
             }
+
 
             try {
                 Thread.sleep(2000); // 2 segundos
@@ -120,10 +130,27 @@ public class ArquivoService {
             throw new IllegalStateException("Conversão não finalizou dentro do tempo esperado");
         }
 
+        // 3) montar e salvar entidade Arquivo (ainda com usuarioId provisório)
+        UUID usuarioId = UUID.randomUUID(); // TODO: trocar pelo ID do usuário autenticado
+        boolean possuiFoto = novoTipo == ArquivoType.JPG
+                || novoTipo == ArquivoType.JPEG
+                || novoTipo == ArquivoType.PNG
+                || novoTipo == ArquivoType.WEBP;
+
+        Arquivo entidade = arquivoMapper.toEntity(
+                arquivo.getOriginalFilename(),
+                novoTipo,
+                tamanhoConvertido,
+                usuarioId,
+                possuiFoto
+        );
+
+        arquivoRepository.save(entidade);
+
+        // 4) response para o frontend
         return new ConversaoResponse(
                 "Conversão concluída. Id: " + jobId,
                 downloadUrl
         );
     }
 }
-
