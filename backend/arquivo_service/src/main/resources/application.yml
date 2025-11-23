@@ -1,0 +1,39 @@
+convertio:
+  apikey: ${CONVERTIO_API_KEY}
+
+spring:
+  application:
+    name: arquivo_service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/arquivo_db
+    username: arquivo_user
+    password: arquivo_password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+
+# Swagger/OpenAPI configuration
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  api-docs:
+    path: /api-docs
+    enabled: true
+  packages-to-scan: com.fileflip.arquivo_service
