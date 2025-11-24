@@ -61,11 +61,17 @@ class CadastrarUsuarioView(APIView):
         serializer.is_valid(raise_exception=True)
 
         resp = clients.auth_client.post(
-            "/api/v1/usuarios",
+            "/api/v1/usuarios/cadastro",
             json=serializer.validated_data
         )
-        return Response(resp.json(), status=status.HTTP_201_CREATED)
 
+        # Se não houver JSON no corpo, não chame resp.json()
+        try:
+            data = resp.json()
+        except Exception:
+            data = {"detail": "Usuário cadastrado com sucesso"}
+
+        return Response(data, status=resp.status_code)
 
 class VincularGoogleView(APIView):
     def post(self, request, id):
@@ -76,7 +82,20 @@ class VincularGoogleView(APIView):
             f"/api/v1/usuarios/{id}/vincular-google",
             json=serializer.validated_data
         )
-        return Response(resp.json())
+
+        # Debug: capturando tudo que o auth_service retorna
+        try:
+            data = resp.json()
+        except Exception:
+            data = {
+                "detail": "Resposta do auth_service não é JSON",
+                "status_code": resp.status_code,
+                "content": resp.text  # aqui você verá a página de erro completa
+            }
+
+        return Response(data, status=resp.status_code)
+
+
 
 
 class AtualizarUsuarioView(APIView):

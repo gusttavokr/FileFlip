@@ -18,7 +18,7 @@ urlpatterns = [
 
     # auth_service
     path("auth/login", LoginView.as_view()),
-    path("auth/usuarios", CadastrarUsuarioView.as_view()),
+    path("auth/usuarios/cadastro", CadastrarUsuarioView.as_view()),
     path("auth/usuarios/listar", ListarUsuariosView.as_view()),
     path("auth/usuarios/<uuid:id>", AtualizarUsuarioView.as_view()),
     path("auth/usuarios/<uuid:id>/delete", DeletarUsuarioView.as_view()),

@@ -50,7 +50,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api-docs/**",
                                 "/api/v1/usuarios/login",
-                                "/api/v1/usuarios"
+                                "/api/v1/usuarios/cadastro"
                                 // adicione aqui qualquer rota pública de frontend
                         ).permitAll()
                         .requestMatchers("/api/v1/usuarios/**/vincular-google").authenticated()

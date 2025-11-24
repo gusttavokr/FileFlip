@@ -60,11 +60,12 @@ public class UsuarioController {
             @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso."),
             @ApiResponse(responseCode = "404", description = "Dados fornecidos inválidos.")
     })
-    @PostMapping
+    @PostMapping("/cadastro")
     public ResponseEntity<UsuarioResponseDTO> cadastrarUsuario(
-            @Parameter(description = "Dados do usuário")
-            @Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO) {
-        UsuarioResponseDTO usuarioCriado = usuarioService.criar(usuarioRequestDTO);
+        @Parameter(description = "Dados do usuário")
+        @Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO) {
+            UsuarioResponseDTO usuarioCriado = usuarioService.criar(usuarioRequestDTO);
+        System.out.println("criei");
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioCriado);
     }
 
