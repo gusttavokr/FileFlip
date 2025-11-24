@@ -6,3 +6,5 @@ requests
 httpx
 zeep
 lxml
+drf-yasg
+requests
