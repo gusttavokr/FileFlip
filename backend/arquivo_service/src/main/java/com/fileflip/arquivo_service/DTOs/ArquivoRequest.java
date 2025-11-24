@@ -32,7 +32,7 @@ public class ArquivoRequest {
 
     @NotNull(message = "O campo 'usuário_id' é obrigatório")
     @Schema(description = "ID do usuário", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
-    private UUID usuario_id;
+    private UUID usuarioId;
 
     @Schema(description = "Imagem do arquivo", example = "true")
     private boolean possuiFoto;

@@ -1,5 +1,5 @@
 convertio:
-  apikey: ${CONVERTIO_API_KEY}
+  apikey: "79a7d05f929bcf88612042bf12d2eacf"
 
 spring:
   application:

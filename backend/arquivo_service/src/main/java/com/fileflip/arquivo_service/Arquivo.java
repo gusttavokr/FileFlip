@@ -28,7 +28,7 @@ public class Arquivo {
     private Long tamanhoArquivo;
 
     @Column(nullable = false)
-    private UUID usuario_id;
+    private UUID usuarioId;
 
     @Column
     private boolean possuiFoto;

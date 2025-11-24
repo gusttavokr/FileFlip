@@ -12,7 +12,6 @@ import java.util.UUID;
 @Component
 public class ArquivoMapper {
 
-
     public Arquivo toEntity(String nome, ArquivoType tipoArquivo,
                             Long tamanhoArquivo, UUID usuarioId,
                             boolean possuiFoto) {
@@ -21,8 +20,23 @@ public class ArquivoMapper {
         arquivo.setName(nome);
         arquivo.setTipoArquivo(tipoArquivo);
         arquivo.setTamanhoArquivo(tamanhoArquivo);
-        arquivo.setUsuario_id(usuarioId);
+        arquivo.setUsuarioId(usuarioId);
         arquivo.setPossuiFoto(possuiFoto);
         return arquivo;
+    }
+
+    public ArquivoResponse toResponseDTO(Arquivo arquivo){
+        if (arquivo == null){
+            return null;
+        }
+
+        var dto = new ArquivoResponse();
+        dto.setArquivoId(arquivo.getArquivo_id());
+        dto.setUsuarioId(arquivo.getUsuarioId());
+        dto.setName(arquivo.getName());
+        dto.setTipoArquivo(arquivo.getTipoArquivo());
+        dto.setTamanhoArquivo(arquivo.getTamanhoArquivo());
+
+        return dto;
     }
 }

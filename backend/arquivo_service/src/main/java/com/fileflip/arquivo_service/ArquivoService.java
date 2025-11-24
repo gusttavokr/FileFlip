@@ -1,5 +1,6 @@
 package com.fileflip.arquivo_service;
 
+import com.fileflip.arquivo_service.DTOs.ArquivoResponse;
 import com.fileflip.arquivo_service.DTOs.ConversaoRequest;
 import com.fileflip.arquivo_service.DTOs.ConversaoResponse;
 import jakarta.transaction.Transactional;
@@ -11,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -152,5 +154,20 @@ public class ArquivoService {
                 "Conversão concluída. Id: " + jobId,
                 downloadUrl
         );
+    }
+
+    public List<ArquivoResponse> listar() {
+
+        return arquivoRepository.findAll()
+                .stream()
+                .map(arquivoMapper::toResponseDTO)
+                .toList();
+    }
+
+    public List<ArquivoResponse> listarPorUsuario(UUID id) {
+        return arquivoRepository.findByUsuarioId(id)
+                .stream()
+                .map(arquivoMapper::toResponseDTO)
+                .toList();
     }
 }
