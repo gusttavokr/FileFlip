@@ -1,5 +1,8 @@
+server:
+  port: 8082
+
 convertio:
-  apikey: "79a7d05f929bcf88612042bf12d2eacf"
+  apikey: ""
 
 spring:
   application:
