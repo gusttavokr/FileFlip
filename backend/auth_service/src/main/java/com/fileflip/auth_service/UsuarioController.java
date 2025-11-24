@@ -12,6 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 import java.util.UUID;
 import java.util.List;
 
@@ -30,11 +33,17 @@ public class UsuarioController {
     @Operation(summary = "Vínculo com Google", description = "O usuário vincula sua conta do FileFlip com alguma do Google")
     @PostMapping("/{id}/vincular-google")
     public ResponseEntity<VincularGoogleResponseDTO> vincularGoogle(
-        @Parameter(description="ID do usuário")
         @PathVariable UUID id,
-        @Valid @RequestBody VincularGoogleRequestDTO googleDTO
+        @Valid @RequestBody VincularGoogleRequestDTO googleDTO,
+        @AuthenticationPrincipal Jwt jwt
     ) {
-        VincularGoogleResponseDTO usuarioAtualizado = usuarioService.vincularGoogle(id,
+        UUID tokenUserId = UUID.fromString(jwt.getSubject());
+        if (!tokenUserId.equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        VincularGoogleResponseDTO usuarioAtualizado = usuarioService.vincularGoogle(
+            id,
             googleDTO.getGoogleId(),
             googleDTO.getGoogleName(),
             googleDTO.getGooglePictureUrl(),
@@ -69,32 +78,32 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioCriado);
     }
 
-    @Operation(summary = "Atualizar usuário existente", description = "Atualiza os dados de um usuário existente")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Requisição inválida"),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-    })
-    @PutMapping ("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(
-            @Parameter(description = "ID do usuário a ser atualizado", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") @PathVariable UUID id,
-            @Parameter(description = "Novos dados do usuário") @Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO){
-        UsuarioResponseDTO usuarioAtualizado = usuarioService.atualizar(id, usuarioRequestDTO);
-        return ResponseEntity.ok(usuarioAtualizado);
-    }
+    // @Operation(summary = "Atualizar usuário existente", description = "Atualiza os dados de um usuário existente")
+    // @ApiResponses({
+    //         @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso"),
+    //         @ApiResponse(responseCode = "400", description = "Requisição inválida"),
+    //         @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    // })
+    // @PutMapping ("/{id}")
+    // public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(
+    //         @Parameter(description = "ID do usuário a ser atualizado", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") @PathVariable UUID id,
+    //         @Parameter(description = "Novos dados do usuário") @Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO){
+    //     UsuarioResponseDTO usuarioAtualizado = usuarioService.atualizar(id, usuarioRequestDTO);
+    //     return ResponseEntity.ok(usuarioAtualizado);
+    // }
 
-    @Operation(summary = "Listar usuários existentes", description = "Lista todos os usuários cadastrados no sistema")
-    @GetMapping
-    public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios(){
-        List<UsuarioResponseDTO> usuarios = usuarioService.listar();
-        return ResponseEntity.status(HttpStatus.OK).body(usuarios);
-    }
+    // @Operation(summary = "Listar usuários existentes", description = "Lista todos os usuários cadastrados no sistema")
+    // @GetMapping
+    // public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios(){
+    //     List<UsuarioResponseDTO> usuarios = usuarioService.listar();
+    //     return ResponseEntity.status(HttpStatus.OK).body(usuarios);
+    // }
 
-    @Operation(summary = "Deletar usuário", description = "Deletar um usuário cadastrado no sistema")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(
-        @Parameter(description =  "ID do usuário que será deletado", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") @PathVariable UUID id){
-            usuarioService.deletar(id);
-            return ResponseEntity.noContent().build();
-        }
+    // @Operation(summary = "Deletar usuário", description = "Deletar um usuário cadastrado no sistema")
+    // @DeleteMapping("/{id}")
+    // public ResponseEntity<Void> deletar(
+    //     @Parameter(description =  "ID do usuário que será deletado", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") @PathVariable UUID id){
+    //         usuarioService.deletar(id);
+    //         return ResponseEntity.noContent().build();
+    //     }
 }

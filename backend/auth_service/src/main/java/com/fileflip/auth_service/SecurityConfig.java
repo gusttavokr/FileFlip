@@ -19,23 +19,20 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-
-import java.io.InputStream;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.io.InputStream;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Value("${jwt.public.key}")
-    private Resource publicKeyResource; // Injeta recurso do classpath
+    private Resource publicKeyResource;
 
     @Value("${jwt.private.key}")
     private Resource privateKeyResource;
@@ -43,78 +40,75 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/api-docs/**",
-                                "/api/v1/usuarios/login",
-                                "/api/v1/usuarios/cadastro"
-                                // adicione aqui qualquer rota pública de frontend
-                        ).permitAll()
-                        .requestMatchers("/api/v1/usuarios/**/vincular-google").authenticated()
-                        .anyRequest().permitAll() // ou authenticated() se quiser proteger tudo
-                )
-                .csrf(csrf -> csrf.disable())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .oauth2Login(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(authorize -> authorize
+                // Swagger e docs públicos
+                .requestMatchers(
+                    "/swagger-ui.html",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/api-docs/**"
+                ).permitAll()
+
+                // rotas públicas de usuários
+                .requestMatchers(
+                    "/api/v1/usuarios/login",
+                    "/api/v1/usuarios/cadastro"
+                ).permitAll()
+
+                // rotas protegidas (listar, atualizar, deletar, vincular-google)
+                .requestMatchers("/api/v1/usuarios/**").authenticated()
+
+                .anyRequest().permitAll()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         return http.build();
     }
 
-
-
     @Bean
-    public JwtEncoder jwtEncoder(RSAPublicKey publicKey, RSAPrivateKey privateKey){
+    public JwtEncoder jwtEncoder(RSAPublicKey publicKey, RSAPrivateKey privateKey) {
         JWK jwk = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
         var jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(RSAPublicKey publicKey){
+    public JwtDecoder jwtDecoder(RSAPublicKey publicKey) {
         return NimbusJwtDecoder.withPublicKey(publicKey).build();
     }
 
-
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-
-
-// ...
-
     @Bean
     public RSAPrivateKey privateKey() throws Exception {
-        String key = readKey((org.springframework.core.io.Resource) privateKeyResource);
-        key = key.replace("-----BEGIN PRIVATE KEY-----", "")
+        String key = readKey(privateKeyResource)
+                .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s", "");
-        byte[] keyBytes = Base64.getDecoder().decode(key);
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(key));
         KeyFactory kf = KeyFactory.getInstance("RSA");
         return (RSAPrivateKey) kf.generatePrivate(keySpec);
     }
 
     @Bean
     public RSAPublicKey publicKey() throws Exception {
-        String key = readKey((org.springframework.core.io.Resource) publicKeyResource);
-        key = key.replace("-----BEGIN PUBLIC KEY-----", "")
+        String key = readKey(publicKeyResource)
+                .replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
                 .replaceAll("\\s", "");
-        byte[] keyBytes = Base64.getDecoder().decode(key);
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(key));
         KeyFactory kf = KeyFactory.getInstance("RSA");
         return (RSAPublicKey) kf.generatePublic(keySpec);
     }
 
-    // Utilitário para ler o conteúdo do PEM:
-    private String readKey(org.springframework.core.io.Resource resource) throws Exception {
-        InputStream is = resource.getInputStream();
-        return new String(is.readAllBytes());
+    private String readKey(Resource resource) throws Exception {
+        try (InputStream is = resource.getInputStream()) {
+            return new String(is.readAllBytes());
+        }
     }
-
 }
