@@ -1,137 +1,103 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+import requests
 
-from .clients import ClientsConfig
-from .soap_client import SoapClient
-from .serializers import GenericBodySerializer
-
-clients = ClientsConfig()
+from drf_yasg import openapi
+import requests
 
 
-# ========== arquivo_service ==========
+from drf_yasg.utils import swagger_auto_schema
 
-class ListarArquivosView(APIView):
-    def get(self, request):
-        usuario_id = request.query_params.get("usuarioId")
+from .serializers import (
+    LoginRequestSerializer, LoginResponseSerializer,
+    UsuarioRequestSerializer, UsuarioResponseSerializer,
+    VincularGoogleRequestSerializer, VincularGoogleResponseSerializer
+)
 
-        if not usuario_id:
-            return Response({"erro": "usuarioId obrigatório"}, status=400)
-
-        resp = clients.arquivo_client.get(
-            "/api/arquivos",
-            params={"usuarioId": usuario_id}
-        )
-        return Response(resp.json())
-
-
-class ConverterArquivoView(APIView):
-    def post(self, request):
-        if "arquivo" not in request.FILES:
-            return Response({"erro": "arquivo obrigatório"}, status=400)
-
-        files = {"arquivo": request.FILES["arquivo"]}
-        data = {"formatoDestino": request.data.get("formatoDestino")}
-
-        resp = clients.arquivo_client.post(
-            "/converter",
-            files=files,
-            data=data
-        )
-        return Response(resp.json())
-    
-
-# ========== auth_service ==========
+SPRING_BASE_URL = 'http://localhost:8081/api/v1/usuarios'
 
 class LoginView(APIView):
+    @swagger_auto_schema(
+        request_body=LoginRequestSerializer,
+        responses={200: LoginResponseSerializer}
+    )
     def post(self, request):
-        serializer = GenericBodySerializer(data=request.data)
+        serializer = LoginRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        response = requests.post(f'{SPRING_BASE_URL}/login', json=serializer.validated_data)
+        return Response(response.json(), status=response.status_code)
 
-        resp = clients.auth_client.post(
-            "/api/v1/usuarios/login",
-            json=serializer.validated_data
-        )
-        return Response(resp.json())
-
-
-class CadastrarUsuarioView(APIView):
+class CadastroView(APIView):
+    @swagger_auto_schema(
+        request_body=UsuarioRequestSerializer,
+        responses={201: UsuarioResponseSerializer}
+    )
     def post(self, request):
-        serializer = GenericBodySerializer(data=request.data)
+        serializer = UsuarioRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        response = requests.post(f'{SPRING_BASE_URL}/cadastro', json=serializer.validated_data)
+        return Response(response.json(), status=response.status_code)
 
-        resp = clients.auth_client.post(
-            "/api/v1/usuarios/cadastro",
-            json=serializer.validated_data
-        )
 
-        # Se não houver JSON no corpo, não chame resp.json()
-        try:
-            data = resp.json()
-        except Exception:
-            data = {"detail": "Usuário cadastrado com sucesso"}
-
-        return Response(data, status=resp.status_code)
+example_vincular = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        'googleAccessToken': openapi.Schema(type=openapi.TYPE_STRING, example="string"),
+        'googleRefreshToken': openapi.Schema(type=openapi.TYPE_STRING, example="string"),
+        'googleId': openapi.Schema(type=openapi.TYPE_STRING, example="string"),
+        'googleName': openapi.Schema(type=openapi.TYPE_STRING, example="string"),
+        'googlePictureUrl': openapi.Schema(type=openapi.TYPE_STRING, example="string"),
+    }
+)
 
 class VincularGoogleView(APIView):
-    def post(self, request, id):
-        serializer = GenericBodySerializer(data=request.data)
+    @swagger_auto_schema(
+        request_body=example_vincular,
+        responses={200: VincularGoogleResponseSerializer},
+        security=[{'Bearer': []}]
+    )
+    def post(self, request, user_id):
+        # Extrai o token JWT do header Authorization
+        auth_header = request.headers.get('Authorization', '')
+        print(f"Authorization header recebido: '{auth_header[:50]}...'")
+        
+        if not auth_header:
+            print("Token não fornecido")
+            return Response(
+                {"error": "Token de autenticação não fornecido"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        # Aceita tanto "Bearer token" quanto apenas "token"
+        if auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+        else:
+            token = auth_header
+        
+        if not token:
+            print("Token vazio após processamento")
+            return Response(
+                {"error": "Token de autenticação inválido"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        print(f"Token extraído com sucesso")
+        
+        serializer = VincularGoogleRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        resp = clients.auth_client.post(
-            f"/api/v1/usuarios/{id}/vincular-google",
-            json=serializer.validated_data
+        
+        # Envia o token JWT para o backend Spring
+        print(f"Enviando request para Spring: {SPRING_BASE_URL}/{user_id}/vincular-google")
+        response = requests.post(
+            f"{SPRING_BASE_URL}/{user_id}/vincular-google",
+            json=serializer.validated_data,
+            headers={'Authorization': f'Bearer {token}'}
         )
-
-        # Debug: capturando tudo que o auth_service retorna
+        print(f"Response do Spring: status={response.status_code}")
+        
         try:
-            data = resp.json()
+            data = response.json()
         except Exception:
-            data = {
-                "detail": "Resposta do auth_service não é JSON",
-                "status_code": resp.status_code,
-                "content": resp.text  # aqui você verá a página de erro completa
-            }
-
-        return Response(data, status=resp.status_code)
-
-
-
-
-class AtualizarUsuarioView(APIView):
-    def put(self, request, id):
-        serializer = GenericBodySerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        resp = clients.auth_client.put(
-            f"/api/v1/usuarios/{id}",
-            json=serializer.validated_data
-        )
-        return Response(resp.json())
-
-
-class ListarUsuariosView(APIView):
-    def get(self, request):
-        resp = clients.auth_client.get("/api/v1/usuarios")
-        return Response(resp.json())
-
-
-class DeletarUsuarioView(APIView):
-    def delete(self, request, id):
-        resp = clients.auth_client.delete(f"/api/v1/usuarios/{id}")
-        return Response(status=resp.status_code)
-
-
-# ========== SOAP ==========
-
-class ListarArquivosSoapView(APIView):
-    def get(self, request):
-        usuario_id = request.query_params.get("usuarioId")
-
-        if not usuario_id:
-            return Response({"erro": "usuarioId obrigatório"}, status=400)
-
-        soap = SoapClient()
-        result = soap.listar_arquivos(usuario_id)
-
-        return Response(result)
+            data = response.text or None
+        return Response(data, status=response.status_code)

@@ -1,29 +1,13 @@
 from django.urls import path
 from .views import (
-    ListarArquivosView,
-    ConverterArquivoView,
     LoginView,
-    CadastrarUsuarioView,
+    CadastroView,
     VincularGoogleView,
-    AtualizarUsuarioView,
-    ListarUsuariosView,
-    DeletarUsuarioView,
-    ListarArquivosSoapView
 )
 
 urlpatterns = [
-    # arquivo_service
-    path("arquivos", ListarArquivosView.as_view()),
-    path("arquivos/converter", ConverterArquivoView.as_view()),
-
     # auth_service
-    path("auth/login", LoginView.as_view()),
-    path("auth/usuarios/cadastro", CadastrarUsuarioView.as_view()),
-    path("auth/usuarios/listar", ListarUsuariosView.as_view()),
-    path("auth/usuarios/<uuid:id>", AtualizarUsuarioView.as_view()),
-    path("auth/usuarios/<uuid:id>/delete", DeletarUsuarioView.as_view()),
-    path("auth/usuarios/<uuid:id>/vincular-google", VincularGoogleView.as_view()),
-
-    # soap
-    path("soap/arquivos", ListarArquivosSoapView.as_view()),
+    path("auth/login", LoginView.as_view(), name="login"),
+    path("auth/usuarios/cadastro", CadastroView.as_view(), name="cadastrar-usuario"),
+    path("auth/usuarios/<uuid:user_id>/vincular-google", VincularGoogleView.as_view(), name="vincular-google"),
 ]
