@@ -35,3 +35,42 @@ class VincularGoogleResponseSerializer(serializers.Serializer):
     googleName = serializers.CharField()
     googlePictureUrl = serializers.CharField()
     googleVinculado = serializers.BooleanField()
+
+
+ARQUIVO_TIPOS = [
+    "PDF",
+    "TXT",
+    "DOCX",
+    "DOC",
+    "JPG",
+    "JPEG",
+    "PNG",
+    "SVG",
+    "WEBP",
+    "MP4",
+    "MP3",
+    "WAV",
+    "M4A",
+    "ZIP",
+    "RAR",
+]
+
+class ConversaoRequestSerializer(serializers.Serializer):
+    novoTipo = serializers.ChoiceField(
+        choices=ARQUIVO_TIPOS,
+        help_text="Tipo do novo arquivo (mesmos valores do enum ArquivoType do backend)",
+    )
+    arquivo = serializers.FileField(
+        required=True,
+        help_text="Dados do arquivo original",
+    )
+
+
+class ConversaoResponseSerializer(serializers.Serializer):
+    mensagem = serializers.CharField(
+        help_text="Mensagem retornada pelo serviço de conversão"
+    )
+    urlDownload = serializers.CharField(
+        help_text="URL para download do arquivo convertido"
+    )
+

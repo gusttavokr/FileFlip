@@ -2,20 +2,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import requests
-
 from drf_yasg import openapi
 import requests
-
-
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.permissions import AllowAny
 
-from .serializers import (
-    LoginRequestSerializer, LoginResponseSerializer,
-    UsuarioRequestSerializer, UsuarioResponseSerializer,
-    VincularGoogleRequestSerializer, VincularGoogleResponseSerializer
-)
+from .serializers import *
 
-SPRING_BASE_URL = 'http://localhost:8081/api/v1/usuarios'
+# ================== Auth Service ==================
+
+AUTH_URL = 'http://localhost:8081/api/v1/usuarios'
 
 class LoginView(APIView):
     @swagger_auto_schema(
@@ -25,7 +21,7 @@ class LoginView(APIView):
     def post(self, request):
         serializer = LoginRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        response = requests.post(f'{SPRING_BASE_URL}/login', json=serializer.validated_data)
+        response = requests.post(f'{AUTH_URL}/login', json=serializer.validated_data)
         return Response(response.json(), status=response.status_code)
 
 class CadastroView(APIView):
@@ -36,7 +32,7 @@ class CadastroView(APIView):
     def post(self, request):
         serializer = UsuarioRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        response = requests.post(f'{SPRING_BASE_URL}/cadastro', json=serializer.validated_data)
+        response = requests.post(f'{AUTH_URL}/cadastro', json=serializer.validated_data)
         return Response(response.json(), status=response.status_code)
 
 
@@ -88,9 +84,9 @@ class VincularGoogleView(APIView):
         serializer.is_valid(raise_exception=True)
         
         # Envia o token JWT para o backend Spring
-        print(f"Enviando request para Spring: {SPRING_BASE_URL}/{user_id}/vincular-google")
+        print(f"Enviando request para Spring: {AUTH_URL}/{user_id}/vincular-google")
         response = requests.post(
-            f"{SPRING_BASE_URL}/{user_id}/vincular-google",
+            f"{AUTH_URL}/{user_id}/vincular-google",
             json=serializer.validated_data,
             headers={'Authorization': f'Bearer {token}'}
         )
@@ -100,4 +96,77 @@ class VincularGoogleView(APIView):
             data = response.json()
         except Exception:
             data = response.text or None
+        return Response(data, status=response.status_code)
+    
+# ================== Arquivo Service ==================
+
+ARQUIVO_URL = 'http://localhost:8082/api/v1/arquivo'
+
+arquivo_param = openapi.Parameter(
+    name='arquivo',
+    in_=openapi.IN_FORM,
+    type=openapi.TYPE_FILE,
+    required=True,
+    description='Arquivo a ser convertido',
+)
+
+novo_tipo_param = openapi.Parameter(
+    name='novoTipo',
+    in_=openapi.IN_FORM,
+    type=openapi.TYPE_STRING,
+    required=True,
+    description='Tipo do novo arquivo (PDF, JPG, DOCX, etc.)',
+)
+
+class ConverterView(APIView):
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        manual_parameters=[arquivo_param, novo_tipo_param],
+        consumes=['multipart/form-data'],
+        responses={200: ConversaoResponseSerializer},
+        security=[{'Bearer': []}],
+    )
+    def post(self, request):
+        print("HEADERS GATEWAY:", dict(request.headers))
+        auth_header = request.headers.get('Authorization', '')
+        print("AUTH_HEADER:", auth_header)
+
+        if not auth_header:
+            return Response(
+                {"error": "Token de autenticação não fornecido"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Garante o formato "Bearer <token>"
+        if auth_header.startswith("Bearer "):
+            forward_auth = auth_header
+        else:
+            forward_auth = f"Bearer {auth_header}"
+
+        serializer = ConversaoRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        arquivo = serializer.validated_data['arquivo']
+        novo_tipo = serializer.validated_data['novoTipo']
+
+        files = {
+            'arquivo': (arquivo.name, arquivo.read(), arquivo.content_type),
+        }
+        data = {
+            'novoTipo': novo_tipo
+        }
+
+        response = requests.post(
+            f'{ARQUIVO_URL}/converter',
+            headers={'Authorization': forward_auth},
+            files=files,
+            data=data
+        )
+
+        try:
+            data = response.json()
+        except Exception:
+            data = response.text or None
+
         return Response(data, status=response.status_code)
