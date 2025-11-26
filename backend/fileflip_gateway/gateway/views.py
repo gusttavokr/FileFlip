@@ -234,6 +234,7 @@ class PerfilView(APIView):
             return Response(perfil_resp.json(), status=perfil_resp.status_code)
 
         usuario_data = perfil_resp.json()
+        print("USUARIO_DATA DO AUTH:", usuario_data)
 
         # 3) Monta envelope SOAP para BuscarArquivoRequest (usuarioId + token)
         envelope = f"""<?xml version="1.0" encoding="UTF-8"?>

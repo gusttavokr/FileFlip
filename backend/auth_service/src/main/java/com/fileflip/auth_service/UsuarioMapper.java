@@ -20,16 +20,19 @@ public class UsuarioMapper {
         return usuario;
     }
 
-    public UsuarioResponseDTO toResponseDTO(Usuario usuario){
+    public UsuarioResponseDTO toResponseDTO(Usuario usuario) {
+
         if (usuario == null){
             return null;
         }
 
-        var dto = new UsuarioResponseDTO();
+        UsuarioResponseDTO dto = new UsuarioResponseDTO();
         dto.setId(usuario.getUserId());
         dto.setUsername(usuario.getUsername());
         dto.setEmail(usuario.getEmail());
-
+        dto.setGoogleVinculado(usuario.getGoogleVinculado());
+        dto.setGoogleName(usuario.getGoogleName());
+        dto.setGooglePictureUrl(usuario.getGooglePictureUrl());
         return dto;
     }
 
