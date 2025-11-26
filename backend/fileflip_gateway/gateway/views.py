@@ -6,6 +6,8 @@ from drf_yasg import openapi
 import requests
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny
+import xmltodict
+
 
 from .serializers import *
 from .hateoas import add_hateoas_links, add_collection_links
@@ -113,49 +115,6 @@ class VincularGoogleView(APIView):
             data = response.text or None
         return Response(data, status=response.status_code)
 
-class PerfilView(APIView):
-    @swagger_auto_schema(
-        responses={200: UsuarioResponseSerializer},  # crie esse serializer com os campos do perfil
-        security=[{'Bearer': []}]
-    )
-    def get(self, request, user_id):
-        # Extrai token
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header:
-            return Response(
-                {"error": "Token de autenticação não fornecido"},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        # Garante formato "Bearer <token>"
-        if auth_header.startswith("Bearer "):
-            forward_auth = auth_header
-        else:
-            forward_auth = f"Bearer {auth_header}"
-
-        # Chama o endpoint do Auth Service
-        try:
-            response = requests.get(
-                f"{AUTH_URL}/{user_id}/perfil",
-                headers={'Authorization': forward_auth},
-                timeout=5
-            )
-        except requests.RequestException:
-            return Response(
-                {"error": "Falha ao comunicar com o Auth Service"},
-                status=status.HTTP_502_BAD_GATEWAY
-            )
-
-        # Trata resposta
-        try:
-            data = response.json()
-            if response.status_code == 200:
-                data = add_hateoas_links(data, request, 'perfil', user_id)
-        except ValueError:
-            data = response.text or None
-
-        return Response(data, status=response.status_code)
-
 # ================== Arquivo Service ==================
 
 ARQUIVO_URL = 'http://localhost:8082/api/v1'
@@ -230,3 +189,118 @@ class ConverterView(APIView):
             data = response.text or None
 
         return Response(data, status=response.status_code)
+
+
+# ================== SOAP Service ==================
+
+SOAP_URL = 'http://localhost:8083/ws'  # endpoint de POST SOAP
+
+
+class PerfilView(APIView):
+    @swagger_auto_schema(
+        responses={200: PerfilcomArquivosSerializer},
+        security=[{'Bearer': []}]
+    )
+    def get(self, request, user_id):
+        # 1) Extrai e valida token
+        auth_header = request.headers.get('Authorization', '')
+        if not auth_header:
+            return Response(
+                {"error": "Token de autenticação não fornecido"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        if auth_header.startswith("Bearer "):
+            forward_auth = auth_header
+            token = auth_header.split(" ", 1)[1]  # só o JWT
+        else:
+            forward_auth = f"Bearer {auth_header}"
+            token = auth_header
+
+        # 2) Chama Auth Service para pegar perfil
+        try:
+            perfil_resp = requests.get(
+                f"{AUTH_URL}/{user_id}/perfil",
+                headers={'Authorization': forward_auth},
+                timeout=5
+            )
+        except requests.RequestException:
+            return Response(
+                {"error": "Falha ao comunicar com o Auth Service"},
+                status=status.HTTP_502_BAD_GATEWAY
+            )
+
+        if perfil_resp.status_code != 200:
+            return Response(perfil_resp.json(), status=perfil_resp.status_code)
+
+        usuario_data = perfil_resp.json()
+
+        # 3) Monta envelope SOAP para BuscarArquivoRequest (usuarioId + token)
+        envelope = f"""<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:arq="http://fileflip.com/arquivo">
+<soapenv:Header/>
+<soapenv:Body>
+<arq:BuscarArquivoRequest>
+<arq:usuarioId>{user_id}</arq:usuarioId>
+<arq:token>{token}</arq:token>
+</arq:BuscarArquivoRequest>
+</soapenv:Body>
+</soapenv:Envelope>"""
+
+        print(f"Envelope SOAP enviado:")
+        print(envelope)
+        print(f"user_id={user_id}, token={token[:30]}...")
+
+
+        headers = {
+            "Content-Type": "text/xml;charset=UTF-8",
+        }
+
+        try:
+            soap_resp = requests.post(SOAP_URL, data=envelope.encode("utf-8"), headers=headers, timeout=5)
+        except requests.RequestException:
+            return Response(
+                {"error": "Falha ao comunicar com o serviço SOAP de arquivos"},
+                status=status.HTTP_502_BAD_GATEWAY
+            )
+
+        if soap_resp.status_code != 200:
+            return Response(
+                {"error": "Erro no serviço SOAP de arquivos", "status": soap_resp.status_code},
+                status=status.HTTP_502_BAD_GATEWAY
+            )
+
+        # 4) Converte XML SOAP -> dict -> lista de arquivos
+        xml_dict = xmltodict.parse(soap_resp.content)
+
+        body = xml_dict.get("soapenv:Envelope", {}).get("soapenv:Body") \
+               or xml_dict.get("SOAP-ENV:Envelope", {}).get("SOAP-ENV:Body") \
+               or list(xml_dict.values())[0].get("Body")
+
+        buscar_resp = None
+        if body:
+            for key, value in body.items():
+                if "BuscarArquivoResponse" in key:
+                    buscar_resp = value
+                    break
+
+        arquivos_raw = []
+        if buscar_resp:
+            arquivos_raw = buscar_resp.get("arquivos", [])
+            if isinstance(arquivos_raw, dict):
+                arquivos_raw = [arquivos_raw]
+
+        # 5) Monta payload combinado
+        payload = {
+            "usuario": usuario_data,
+            "arquivos": arquivos_raw,
+        }
+
+        # 6) Aplica serializer
+        print("ARQUIVOS_RAW:", arquivos_raw)
+        serializer = PerfilcomArquivosSerializer(payload)
+        data = serializer.data
+
+        # 7) HATEOAS
+        data = add_hateoas_links(data, request, 'perfil', user_id)
+        return Response(data, status=status.HTTP_200_OK)

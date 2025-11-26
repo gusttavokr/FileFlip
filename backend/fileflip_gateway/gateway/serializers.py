@@ -74,3 +74,14 @@ class ConversaoResponseSerializer(serializers.Serializer):
         help_text="URL para download do arquivo convertido"
     )
 
+
+class ArquivoResponseSerializer(serializers.Serializer):
+    arquivo_id = serializers.UUIDField()
+    name = serializers.CharField()
+    tamanhoArquivo = serializers.IntegerField()
+    possuiFoto = serializers.BooleanField()
+    usuario_id = serializers.UUIDField()
+
+class PerfilcomArquivosSerializer(serializers.Serializer):
+    usuario = UsuarioResponseSerializer()
+    arquivos = ArquivoResponseSerializer(many=True)

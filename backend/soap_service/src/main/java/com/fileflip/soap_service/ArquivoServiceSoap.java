@@ -1,6 +1,8 @@
 package com.fileflip.soap_service;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -19,16 +21,31 @@ public class ArquivoServiceSoap {
         this.arquivoMapper = new ArquivoMapper();
     }
 
-    public List<ArquivoSoap> buscarArquivosDoUsuario(UUID usuarioId) {
+    public List<ArquivoSoap> buscarArquivosDoUsuario(UUID usuarioId, String token) {
         System.out.println("Entrei na service");
-        String url = "http://localhost:8080/api/arquivos?usuarioId=" + usuarioId;
+        String url = "http://localhost:8082/api/v1?usuarioId=" + usuarioId;
         System.out.println("URL chamada: " + url);
-        ResponseEntity<List<ArquivoResponse>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<ArquivoResponse>>() {}
-        );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<List<ArquivoResponse>> response;
+        try {
+            response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    new ParameterizedTypeReference<List<ArquivoResponse>>() {}
+            );
+        } catch (Exception e) {
+            System.out.println("Erro na chamada REST de arquivos:");
+            e.printStackTrace();
+            throw e;
+        }
+
+        System.out.println("Status REST arquivos: " + response.getStatusCode());
+        System.out.println("Body REST arquivos: " + response.getBody());
 
         List<ArquivoResponse> arquivoResponses = response.getBody();
         if (arquivoResponses == null) {
@@ -38,4 +55,5 @@ public class ArquivoServiceSoap {
                 .map(arquivoMapper::toArquivoSoap)
                 .toList();
     }
+
 }

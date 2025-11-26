@@ -20,16 +20,22 @@ public class ArquivoEndpoint {
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "BuscarArquivoRequest")
     @ResponsePayload
     public BuscarArquivoResponse buscarArquivos(@RequestPayload BuscarArquivoRequest request) {
-        System.out.println("Request: " + request);
-        System.out.println("Class: " + request.getClass().getName());
+        System.out.println("=== ENDPOINT CHAMADO ===");
+        System.out.println("Request object: " + request);
+        System.out.println("Request class: " + request.getClass().getName());
         System.out.println("usuarioId recebido do request SOAP: " + request.getUsuarioId());
+        System.out.println("token recebido do request SOAP: " + request.getToken());
+        System.out.println("========================");
+
         if (request.getUsuarioId() == null || request.getUsuarioId().isEmpty()) {
             throw new IllegalArgumentException("usuarioId não enviado ou está vazio!");
         }
         UUID uuid = UUID.fromString(request.getUsuarioId());
-        List<ArquivoSoap> arquivos = arquivoServiceSoap.buscarArquivosDoUsuario(uuid);
+
+        List<ArquivoSoap> arquivos = arquivoServiceSoap.buscarArquivosDoUsuario(uuid, request.getToken());
         BuscarArquivoResponse response = new BuscarArquivoResponse();
         response.setArquivos(arquivos);
         return response;
     }
+
 }
