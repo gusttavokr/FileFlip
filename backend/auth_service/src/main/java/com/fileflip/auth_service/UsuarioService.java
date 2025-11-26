@@ -128,7 +128,13 @@ public class UsuarioService {
                 .build();
 
         var JwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-        return new LoginResponseDTO(JwtValue, usuario.getEmail(), usuario.getUsername());
+        return new LoginResponseDTO( usuario.getUserId(),JwtValue, usuario.getEmail(), usuario.getUsername());
 
+    }
+
+    public UsuarioResponseDTO obterPorId(UUID id){
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário " + id + " não encontrado."));
+        return usuarioMapper.toResponseDTO(usuario);
     }
 }

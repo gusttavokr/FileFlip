@@ -52,12 +52,12 @@ public class SecurityConfig {
 
                 // rotas públicas de usuários
                 .requestMatchers(
-                    "/api/v1/usuarios/login",
-                    "/api/v1/usuarios/cadastro"
+                    "/api/v1/login",
+                    "/api/v1/cadastro"
                 ).permitAll()
 
                 // rotas protegidas (listar, atualizar, deletar, vincular-google)
-                .requestMatchers("/api/v1/usuarios/**").authenticated()
+                .requestMatchers("/api/v1/**").authenticated()
 
                 .anyRequest().permitAll()
             )

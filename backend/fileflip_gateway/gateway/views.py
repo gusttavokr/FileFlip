@@ -12,7 +12,7 @@ from .hateoas import add_hateoas_links, add_collection_links
 
 # ================== Auth Service ==================
 
-AUTH_URL = 'http://localhost:8081/api/v1/usuarios'
+AUTH_URL = 'http://localhost:8081/api/v1'
 
 class LoginView(APIView):
     @swagger_auto_schema(
@@ -112,10 +112,53 @@ class VincularGoogleView(APIView):
         except Exception:
             data = response.text or None
         return Response(data, status=response.status_code)
-    
+
+class PerfilView(APIView):
+    @swagger_auto_schema(
+        responses={200: UsuarioResponseSerializer},  # crie esse serializer com os campos do perfil
+        security=[{'Bearer': []}]
+    )
+    def get(self, request, user_id):
+        # Extrai token
+        auth_header = request.headers.get('Authorization', '')
+        if not auth_header:
+            return Response(
+                {"error": "Token de autenticação não fornecido"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Garante formato "Bearer <token>"
+        if auth_header.startswith("Bearer "):
+            forward_auth = auth_header
+        else:
+            forward_auth = f"Bearer {auth_header}"
+
+        # Chama o endpoint do Auth Service
+        try:
+            response = requests.get(
+                f"{AUTH_URL}/{user_id}/perfil",
+                headers={'Authorization': forward_auth},
+                timeout=5
+            )
+        except requests.RequestException:
+            return Response(
+                {"error": "Falha ao comunicar com o Auth Service"},
+                status=status.HTTP_502_BAD_GATEWAY
+            )
+
+        # Trata resposta
+        try:
+            data = response.json()
+            if response.status_code == 200:
+                data = add_hateoas_links(data, request, 'perfil', user_id)
+        except ValueError:
+            data = response.text or None
+
+        return Response(data, status=response.status_code)
+
 # ================== Arquivo Service ==================
 
-ARQUIVO_URL = 'http://localhost:8082/api/v1/arquivo'
+ARQUIVO_URL = 'http://localhost:8082/api/v1'
 
 arquivo_param = openapi.Parameter(
     name='arquivo',

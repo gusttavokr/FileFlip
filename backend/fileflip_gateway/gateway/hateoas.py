@@ -1,9 +1,3 @@
-"""
-Utilitário para adicionar links HATEOAS nas respostas da API Gateway
-"""
-from django.urls import reverse
-
-
 def add_hateoas_links(data, request, resource_type, resource_id=None):
     if not isinstance(data, dict):
         return data
@@ -11,64 +5,89 @@ def add_hateoas_links(data, request, resource_type, resource_id=None):
     base_url = f"{request.scheme}://{request.get_host()}"
     links = {}
 
-    # link self genérico
+    # self sempre é a URL da requisição atual
     links["self"] = {
-        "href": request.build_absolute_uri(),  # URL da requisição atual
+        "href": request.build_absolute_uri(),
         "method": request.method,
     }
 
+    # 1) RESPOSTA DE LOGIN:
     if resource_type == "login":
-        user_id = data.get("userId") or data.get("id")
+        user_id = data.get("userId") or data.get("id") or resource_id
         if user_id:
-            links["vincular-google"] = {
-                "href": f"{base_url}/gateway/auth/usuarios/{user_id}/vincular-google",
-                "method": "POST",
+            links.pop("self", None)  
+
+            links["perfil"] = {
+                "href": f"{base_url}/gateway/auth/{user_id}/perfil",
+                "method": "GET",
             }
             links["converter-arquivo"] = {
                 "href": f"{base_url}/gateway/arquivo/converter",
                 "method": "POST",
             }
+            links["vincular-google"] = {
+                "href": f"{base_url}/gateway/auth/{user_id}/vincular-google",
+                "method": "POST",
+            }
 
-    # mantém sua lógica de usuario / vincular-google / conversao / historico aqui...
+    # 2) RESPOSTA DE CADASTRO (usuario):
+    elif resource_type == "usuario":
+        user_id = data.get("id") or resource_id
+        if user_id:
+            links["login"] = {
+                "href": f"{base_url}/gateway/auth/login",
+                "method": "POST",
+            }
+
+    elif resource_type == "perfil":
+        user_id = data.get("id") or resource_id
+        if user_id:
+            links["vincular-google"] = {
+                "href": f"{base_url}/gateway/auth/{user_id}/vincular-google",
+                "method": "POST",
+            }
+            links["converter-arquivo"] = {
+                "href": f"{base_url}/gateway/converter",
+                "method": "POST",
+            }
+
+    # 4) VINCULAR GOOGLE: mostrar perfil e converter
+    elif resource_type == "vincular-google":
+        user_id = resource_id or data.get("userId") or data.get("id")
+        if user_id:
+            links.pop("self", None)
+            links["perfil"] = {
+                "href": f"{base_url}/gateway/auth/{user_id}/perfil",
+                "method": "GET",
+            }
+            links["converter-arquivo"] = {
+                "href": f"{base_url}/gateway/converter",
+                "method": "POST",
+            }
+
+    # 5) CONVERSAO: converter-novamente
+    elif resource_type == "conversao":
+        conversao_id = data.get("id") or resource_id
 
     data["_links"] = links
     return data
 
 
-
 def add_collection_links(items, request, resource_type):
-    """
-    Adiciona links HATEOAS para uma coleção de recursos
-    
-    Args:
-        items: Lista de recursos
-        request: HttpRequest object
-        resource_type: Tipo do recurso
-    
-    Returns:
-        Dict com items + _links
-    """
     if not isinstance(items, list):
         return items
-    
+
     base_url = f"{request.scheme}://{request.get_host()}"
-    
+
     result = {
-        'items': items,
-        'count': len(items),
-        '_links': {
-            'self': {
-                'href': f"{base_url}{request.path}",
-                'method': request.method
+        "items": items,
+        "count": len(items),
+        "_links": {
+            "self": {
+                "href": f"{base_url}{request.path}",
+                "method": request.method,
             }
-        }
+        },
     }
-    
-    # Adiciona links específicos para cada tipo de coleção
-    if resource_type == 'historico':
-        result['_links']['converter'] = {
-            'href': f"{base_url}/gateway/arquivo/converter",
-            'method': 'POST'
-        }
-    
+
     return result

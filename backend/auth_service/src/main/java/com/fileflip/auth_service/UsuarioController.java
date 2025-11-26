@@ -18,7 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/usuarios")
+@RequestMapping("/api/v1")
 @Tag(name = "Usuários", description = "Gerencia as operações de usuário")
 public class UsuarioController {
 
@@ -75,6 +75,26 @@ public class UsuarioController {
             UsuarioResponseDTO usuarioCriado = usuarioService.criar(usuarioRequestDTO);
         System.out.println("criei");
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioCriado);
+    }
+
+    @Operation(summary = "Meu perfil", description = "Retorna os dados do usuário autenticado")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Dados do usuário retornados com sucesso."),
+            @ApiResponse(responseCode = "401", description = "Usuário não autenticado.")
+    })
+    @GetMapping("/{id}/perfil")
+    public ResponseEntity<UsuarioResponseDTO> meuPerfil(
+        @Parameter(description = "ID do usuário autenticado", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+        @PathVariable UUID id,
+        @AuthenticationPrincipal Jwt jwt
+    ) {
+        UsuarioResponseDTO usuario = usuarioService.obterPorId(id);
+
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.ok(usuario);
     }
 
     // @Operation(summary = "Atualizar usuário existente", description = "Atualiza os dados de um usuário existente")

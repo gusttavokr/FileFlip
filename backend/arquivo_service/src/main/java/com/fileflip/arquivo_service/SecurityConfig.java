@@ -20,7 +20,7 @@ public class SecurityConfig {
                     "/swagger-ui.html",
                     "/v3/api-docs/**"
                 ).permitAll()
-                .requestMatchers("/api/v1/arquivo/**").authenticated()
+                .requestMatchers("/api/v1**").authenticated()
                 .anyRequest().authenticated()
 
             )
