@@ -8,6 +8,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny
 
 from .serializers import *
+from .hateoas import add_hateoas_links, add_collection_links
 
 # ================== Auth Service ==================
 
@@ -22,6 +23,12 @@ class LoginView(APIView):
         serializer = LoginRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         response = requests.post(f'{AUTH_URL}/login', json=serializer.validated_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            data = add_hateoas_links(data, request, 'login')
+            return Response(data, status=response.status_code)
+        
         return Response(response.json(), status=response.status_code)
 
 class CadastroView(APIView):
@@ -33,6 +40,12 @@ class CadastroView(APIView):
         serializer = UsuarioRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         response = requests.post(f'{AUTH_URL}/cadastro', json=serializer.validated_data)
+        
+        if response.status_code == 201:
+            data = response.json()
+            data = add_hateoas_links(data, request, 'usuario')
+            return Response(data, status=response.status_code)
+        
         return Response(response.json(), status=response.status_code)
 
 
@@ -94,6 +107,8 @@ class VincularGoogleView(APIView):
         
         try:
             data = response.json()
+            if response.status_code == 200:
+                data = add_hateoas_links(data, request, 'vincular-google', user_id)
         except Exception:
             data = response.text or None
         return Response(data, status=response.status_code)
@@ -166,6 +181,8 @@ class ConverterView(APIView):
 
         try:
             data = response.json()
+            if response.status_code == 200:
+                data = add_hateoas_links(data, request, 'conversao')
         except Exception:
             data = response.text or None
 
