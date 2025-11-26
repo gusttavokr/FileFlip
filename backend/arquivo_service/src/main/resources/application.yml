@@ -5,6 +5,12 @@ convertio:
   apikey: ""
 
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:app.pub
+
   application:
     name: arquivo_service
 
@@ -28,15 +34,14 @@ spring:
     init:
       mode: always
 
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-
 # Swagger/OpenAPI configuration
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
   api-docs:
-    path: /api-docs
+    path: /v3/api-docs
     enabled: true
   packages-to-scan: com.fileflip.arquivo_service
+
+

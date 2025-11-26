@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api/v1/arquivo") // prefixo comum
 public class ArquivoController {
 
     private final ArquivoService arquivoService;
@@ -26,10 +27,9 @@ public class ArquivoController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/api/arquivos")
+    @GetMapping
     public ResponseEntity<List<ArquivoResponse>> getArquivosByUsuario(@RequestParam UUID usuarioId) {
         List<ArquivoResponse> arquivos = arquivoService.listarPorUsuario(usuarioId);
         return ResponseEntity.status(HttpStatus.OK).body(arquivos);
     }
-
 }
