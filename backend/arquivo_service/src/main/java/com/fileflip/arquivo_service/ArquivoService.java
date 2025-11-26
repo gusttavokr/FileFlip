@@ -7,9 +7,12 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.io.IOException;
 import java.util.List;
@@ -132,8 +135,21 @@ public class ArquivoService {
             throw new IllegalStateException("Conversão não finalizou dentro do tempo esperado");
         }
 
-        // 3) montar e salvar entidade Arquivo (ainda com usuarioId provisório)
-        UUID usuarioId = UUID.randomUUID(); // TODO: trocar pelo ID do usuário autenticado
+        // 3) pegar ID do usuário autenticado a partir do JWT
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
+            throw new IllegalStateException("Usuário não autenticado ou token inválido");
+        }
+
+        // "sub" contém o UUID do usuário
+        String userIdStr = jwt.getClaim("sub");
+        if (userIdStr == null || userIdStr.isBlank()) {
+            throw new IllegalStateException("Claim 'sub' ausente ou vazio no token");
+        }
+
+        UUID usuarioId = UUID.fromString(userIdStr);
+
+        // continua igual
         boolean possuiFoto = novoTipo == ArquivoType.JPG
                 || novoTipo == ArquivoType.JPEG
                 || novoTipo == ArquivoType.PNG
@@ -144,7 +160,8 @@ public class ArquivoService {
                 novoTipo,
                 tamanhoConvertido,
                 usuarioId,
-                possuiFoto
+                possuiFoto,
+                downloadUrl
         );
 
         arquivoRepository.save(entidade);

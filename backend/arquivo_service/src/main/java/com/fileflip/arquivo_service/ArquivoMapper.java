@@ -1,11 +1,7 @@
 package com.fileflip.arquivo_service;
 
-import com.fileflip.arquivo_service.DTOs.ArquivoRequest;
 import com.fileflip.arquivo_service.DTOs.ArquivoResponse;
-import com.fileflip.arquivo_service.DTOs.ConversaoRequest;
-import com.fileflip.arquivo_service.DTOs.ConversaoResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -14,7 +10,7 @@ public class ArquivoMapper {
 
     public Arquivo toEntity(String nome, ArquivoType tipoArquivo,
                             Long tamanhoArquivo, UUID usuarioId,
-                            boolean possuiFoto) {
+                            boolean possuiFoto, String urlDownload) {
 
         Arquivo arquivo = new Arquivo();
         arquivo.setName(nome);
@@ -22,6 +18,7 @@ public class ArquivoMapper {
         arquivo.setTamanhoArquivo(tamanhoArquivo);
         arquivo.setUsuarioId(usuarioId);
         arquivo.setPossuiFoto(possuiFoto);
+        arquivo.setUrlDownload(urlDownload);
         return arquivo;
     }
 

@@ -1,29 +1,16 @@
 from django.urls import path
 from .views import (
-    ListarArquivosView,
-    ConverterArquivoView,
-    LoginView,
-    CadastrarUsuarioView,
-    VincularGoogleView,
-    AtualizarUsuarioView,
-    ListarUsuariosView,
-    DeletarUsuarioView,
-    ListarArquivosSoapView
+    LoginView, CadastroView, VincularGoogleView,
+    ConverterView, PerfilView
 )
 
 urlpatterns = [
-    # arquivo_service
-    path("arquivos", ListarArquivosView.as_view()),
-    path("arquivos/converter", ConverterArquivoView.as_view()),
+    path("auth/login", LoginView.as_view(), name="login"),
+    path("auth/cadastro", CadastroView.as_view(), name="cadastrar-usuario"),
+    path("auth/<uuid:user_id>/vincular-google", VincularGoogleView.as_view(), name="vincular-google"),
 
-    # auth_service
-    path("auth/login", LoginView.as_view()),
-    path("auth/usuarios", CadastrarUsuarioView.as_view()),
-    path("auth/usuarios/listar", ListarUsuariosView.as_view()),
-    path("auth/usuarios/<uuid:id>", AtualizarUsuarioView.as_view()),
-    path("auth/usuarios/<uuid:id>/delete", DeletarUsuarioView.as_view()),
-    path("auth/usuarios/<uuid:id>/vincular-google", VincularGoogleView.as_view()),
+    path("api/v1/converter/", ConverterView.as_view(), name="converter-arquivo"),
 
-    # soap
-    path("soap/arquivos", ListarArquivosSoapView.as_view()),
+    path('auth/<uuid:user_id>/perfil', PerfilView.as_view(), name='perfil-usuario'),
+
 ]
