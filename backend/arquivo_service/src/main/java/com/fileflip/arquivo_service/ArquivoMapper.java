@@ -10,7 +10,7 @@ public class ArquivoMapper {
 
     public Arquivo toEntity(String nome, ArquivoType tipoArquivo,
                             Long tamanhoArquivo, UUID usuarioId,
-                            boolean possuiFoto) {
+                            boolean possuiFoto, String urlDownload) {
 
         Arquivo arquivo = new Arquivo();
         arquivo.setName(nome);
@@ -18,6 +18,7 @@ public class ArquivoMapper {
         arquivo.setTamanhoArquivo(tamanhoArquivo);
         arquivo.setUsuarioId(usuarioId);
         arquivo.setPossuiFoto(possuiFoto);
+        arquivo.setUrlDownload(urlDownload);
         return arquivo;
     }
 

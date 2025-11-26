@@ -32,4 +32,7 @@ public class Arquivo {
 
     @Column
     private boolean possuiFoto;
+
+    @Column
+    private String urlDownload;
 }

@@ -4,6 +4,7 @@ import com.fileflip.auth_service.DTOs.*;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -22,6 +23,9 @@ public class UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;
+    
+    @Value("${jwt.expiration}")
+    private Long jwtExpiration;
 
     public UsuarioService(UsuarioRepository usuarioRepository,
                           UsuarioMapper usuarioMapper,
@@ -114,8 +118,8 @@ public class UsuarioService {
             throw new BadCredentialsException("Senha inválida");
         }
 
-        var expiresIn = 300L;
         var now = Instant.now();
+        var expiresIn = jwtExpiration / 1000; // Converte de milissegundos para segundos
 
         var claims = JwtClaimsSet.builder()
                 .issuer("fileflip_backend")

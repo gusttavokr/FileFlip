@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.io.IOException;
@@ -161,7 +160,8 @@ public class ArquivoService {
                 novoTipo,
                 tamanhoConvertido,
                 usuarioId,
-                possuiFoto
+                possuiFoto,
+                downloadUrl
         );
 
         arquivoRepository.save(entidade);

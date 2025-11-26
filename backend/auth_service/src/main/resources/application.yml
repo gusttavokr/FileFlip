@@ -6,6 +6,7 @@ jwt:
     key: classpath:app.pub
   private:
     key: classpath:app.key
+  expiration: 86400000  # 24 horas em milissegundos
 
 
 spring:
