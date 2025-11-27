@@ -103,7 +103,7 @@ def _normalize_arquivo(raw: dict) -> dict:
 
 # ================== Auth Service ==================
 
-AUTH_URL = 'http://auth-service-1:8081/api/v1'
+AUTH_URL = 'http://auth-service:8081/api/v1'
 
 class LoginView(APIView):
     @swagger_auto_schema(
@@ -114,13 +114,18 @@ class LoginView(APIView):
         serializer = LoginRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         response = requests.post(f'{AUTH_URL}/login', json=serializer.validated_data)
-        
-        if response.status_code == 200:
+
+        try:
             data = response.json()
+        except Exception:
+            # fallback: texto bruto ou None
+            data = response.text or None
+
+        if response.status_code == 200 and isinstance(data, dict):
             data = add_hateoas_links(data, request, 'login')
-            return Response(data, status=response.status_code)
-        
-        return Response(response.json(), status=response.status_code)
+
+        return Response(data, status=response.status_code)
+
 
 class CadastroView(APIView):
     @swagger_auto_schema(
@@ -131,13 +136,17 @@ class CadastroView(APIView):
         serializer = UsuarioRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         response = requests.post(f'{AUTH_URL}/cadastro', json=serializer.validated_data)
-        
-        if response.status_code == 201:
+
+        try:
             data = response.json()
+        except Exception:
+            data = response.text or None
+
+        if response.status_code == 201 and isinstance(data, dict):
             data = add_hateoas_links(data, request, 'usuario')
-            return Response(data, status=response.status_code)
-        
-        return Response(response.json(), status=response.status_code)
+
+        return Response(data, status=response.status_code)
+
 
 
 example_vincular = openapi.Schema(
@@ -206,7 +215,7 @@ class VincularGoogleView(APIView):
 
 # ================== Arquivo Service ==================
 
-ARQUIVO_URL = 'http://arquivo-service-1:8082/api/v1'
+ARQUIVO_URL = 'http://arquivo-service:8082/api/v1'
 
 arquivo_param = openapi.Parameter(
     name='arquivo',
@@ -282,7 +291,7 @@ class ConverterView(APIView):
 
 # ================== SOAP Service ==================
 
-SOAP_URL = 'http://soap-service-1:8083/ws'  # endpoint de POST SOAP
+SOAP_URL = 'http://soap-service:8083/ws'  # endpoint de POST SOAP
 
 
 class PerfilView(APIView):
@@ -347,21 +356,35 @@ class PerfilView(APIView):
         }
 
         try:
-            soap_resp = requests.post(SOAP_URL, data=envelope.encode("utf-8"), headers=headers, timeout=5)
-        except requests.RequestException:
+            soap_resp = requests.post(SOAP_URL, data=envelope.encode("utf-8"), headers=headers, timeout=15)
+        except requests.RequestException as e:
+            print(f"ERRO SOAP RequestException: {str(e)}")
             return Response(
-                {"error": "Falha ao comunicar com o serviço SOAP de arquivos"},
+                {"error": "Falha ao comunicar com o serviço SOAP de arquivos", "details": str(e)},
                 status=status.HTTP_502_BAD_GATEWAY
             )
 
         if soap_resp.status_code != 200:
+            print(f"ERRO SOAP status: {soap_resp.status_code}")
+            print(f"ERRO SOAP body: {soap_resp.text[:500]}")
             return Response(
-                {"error": "Erro no serviço SOAP de arquivos", "status": soap_resp.status_code},
+                {"error": "Erro no serviço SOAP de arquivos", "status": soap_resp.status_code, "body": soap_resp.text[:200]},
                 status=status.HTTP_502_BAD_GATEWAY
             )
 
         # 4) Converte XML SOAP -> dict -> lista de arquivos
-        xml_dict = xmltodict.parse(soap_resp.content)
+        print(f"SOAP Response recebida, tamanho: {len(soap_resp.content)} bytes")
+        print(f"SOAP Response primeiros 500 chars: {soap_resp.text[:500]}")
+        
+        try:
+            xml_dict = xmltodict.parse(soap_resp.content)
+        except Exception as e:
+            print(f"ERRO ao fazer parse do XML: {str(e)}")
+            print(f"XML completo: {soap_resp.text}")
+            return Response(
+                {"error": "Erro ao processar resposta SOAP", "details": str(e)},
+                status=status.HTTP_502_BAD_GATEWAY
+            )
 
         body = xml_dict.get("soapenv:Envelope", {}).get("soapenv:Body") \
                or xml_dict.get("SOAP-ENV:Envelope", {}).get("SOAP-ENV:Body") \

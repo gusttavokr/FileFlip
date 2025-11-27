@@ -23,7 +23,7 @@ public class ArquivoServiceSoap {
 
     public List<ArquivoSoap> buscarArquivosDoUsuario(UUID usuarioId, String token) {
         System.out.println("Entrei na service");
-        String url = "http://localhost:8082/api/v1?usuarioId=" + usuarioId;
+        String url = "http://arquivo-service:8082/api/v1?usuarioId=" + usuarioId;
         System.out.println("URL chamada: " + url);
 
         HttpHeaders headers = new HttpHeaders();
