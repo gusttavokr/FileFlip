@@ -1,17 +1,33 @@
-# Usando JDK 21
-FROM eclipse-temurin:21-jdk-alpine
+# ===========================
+# STAGE 1 — Build com Maven
+# ===========================
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 
-# Diretório de trabalho
+# Define o diretório onde está o microserviço
 WORKDIR /app
 
-# Copia o JAR do microserviço
-# Supondo que cada serviço seja buildado individualmente em target/
-ARG JAR_FILE
-COPY ${JAR_FILE} app.jar
+# Copia tudo do projeto para dentro da imagem
+COPY . .
 
-# Expõe a porta (pode ser sobrescrita via docker-compose)
+# Entra na pasta onde está o pom.xml do serviço
+WORKDIR /app/backend/soap_service
+
+# Executa o build
+RUN mvn clean package -DskipTests
+
+
+# ===========================
+# STAGE 2 — Runtime (JVM leve)
+# ===========================
+FROM eclipse-temurin:21-jdk-alpine
+
+WORKDIR /app
+
+# Copia o .jar gerado do stage anterior
+COPY --from=build /app/backend/soap_service/target/*.jar app.jar
+
+# Porta configurável
 ARG PORT=8080
 EXPOSE ${PORT}
 
-# Entrada
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
