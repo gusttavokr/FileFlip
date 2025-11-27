@@ -1,0 +1,92 @@
+version: "3.9"
+
+services:
+  # Postgres compartilhado
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fileflip
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+
+
+  # Auth Service
+  auth_service:
+    build:
+      context: ../backend
+      dockerfile: ../docker/Dockerfile
+      args:
+        JAR_FILE: auth_service/target/auth_service-0.0.1-SNAPSHOT.jar
+        PORT: 8081
+    environment:
+      AUTH_DB_URL: jdbc:postgresql://postgres:5432/auth_db
+      AUTH_DB_USER: auth_user
+      AUTH_DB_PASSWORD: auth_password
+      GOOGLE_CLIENT_ID: ""
+      GOOGLE_CLIENT_SECRET: ""
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+
+
+  # Arquivo Service
+  arquivo_service:
+    build:
+      context: ../backend
+      dockerfile: ../docker/Dockerfile
+      args:
+        JAR_FILE: arquivo_service/target/arquivo_service-0.0.1-SNAPSHOT.jar
+        PORT: 8082
+    environment:
+      ARQUIVO_DB_URL: jdbc:postgresql://postgres:5432/arquivo_db
+      ARQUIVO_DB_USER: arquivo_user
+      ARQUIVO_DB_PASSWORD: arquivo_password
+      CONVERTIO_API_KEY: "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"
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+
+  # Soap Service
+  soap_service:
+    build:
+      context: ../backend
+      dockerfile: ../docker/Dockerfile
+      args:
+        JAR_FILE: soap_service/target/soap_service-0.0.1-SNAPSHOT.jar
+        PORT: 8083
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ../frontend/fileflip
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+
+  gateway:
+    build:
+      context: ../backend/fileflip_gateway  # contexto agora é a pasta que contém manage.py
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+
+
+
+
+
+
+volumes:
+  postgres_data:
