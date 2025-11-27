@@ -5,6 +5,9 @@ import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+
+import { autenticacaoInterceptor } from './service/usuario.interceptor';
 
 
 export const appConfig: ApplicationConfig = {
@@ -25,6 +28,11 @@ export const appConfig: ApplicationConfig = {
                     }
                 }
             }
-        })
+        }),
+    provideHttpClient(
+        withInterceptors(
+            [autenticacaoInterceptor]
+        )
+    )
   ]
 };

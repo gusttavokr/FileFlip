@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,12 +11,18 @@ import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 
+import { UsuarioService } from '../../service/usuario';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { CadastroUsuario } from '../../models/CadastroUsuario';
+
 @Component({
     selector: 'app-registro',
     templateUrl: './registro.html',
     standalone: true,
     imports: [
+        CommonModule,
         FormsModule, 
+        ReactiveFormsModule,
         InputGroupModule, 
         InputGroupAddonModule, 
         InputTextModule, 
@@ -27,15 +34,35 @@ import { RouterModule } from '@angular/router';
     ]
 })
 export class Registro {
-    constructor(private router: Router) {}
-    username: string | undefined;
+    readonly usuarioService = inject(UsuarioService);
+    private router = inject(Router);
 
-    email: string | undefined;
+    cadastroDados: FormGroup = new FormGroup({
+        username: new FormControl('', [Validators.required]),
+        email: new FormControl('', [Validators.required, Validators.email]),
+        password: new FormControl('', [Validators.required, Validators.minLength(6)]),
+        confirmPassword: new FormControl('', [Validators.required])
+    });
 
-    senha!: string;
-    confirmarSenha!: string;
+    onSubmit() {
+        if (this.cadastroDados.invalid) {
+            this.cadastroDados.markAllAsTouched();
+            return;
+        }
 
-    onCadastroSucesso() {
-        this.router.navigate(['/meus-arquivos']);
-  }
+        console.log('Enviando cadastro:', this.cadastroDados.value);
+
+        this.usuarioService.criarUsuario(this.cadastroDados.value as CadastroUsuario).subscribe({
+            next: (response) => {
+                console.log('Cadastro bem-sucedido:', response);
+                alert('Cadastro realizado com sucesso! Faça login para continuar.');
+                this.router.navigate(['/login']);
+            },
+            error: (err) => {
+                console.error('Erro ao cadastrar usuário:', err);
+                alert('Erro ao cadastrar: ' + (err.error?.message || 'Erro desconhecido'));
+            }
+        });
+    
+    }
 }

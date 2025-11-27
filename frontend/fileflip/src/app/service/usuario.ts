@@ -1,5 +1,10 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { JwtPayload, jwtDecode } from 'jwt-decode';
+import { CadastroUsuario } from '../models/CadastroUsuario';
+import { LoginUsuario } from '../models/LoginUsuario';
+import { Login } from '../models/Login';
 
 export interface Usuario {
   id: string;
@@ -14,19 +19,59 @@ export interface Usuario {
 })
 
 export class UsuarioService {
-  private usuarios: Usuario[] = [
-    {
-      id: '1',
-      nome: "Histórico acadêmico",
-      email: 'gustavommilitaoo@gmail.com',
-      foto_perfil: 'https://randomuser.me/api/portraits/men/5.jpg',
-      qtd_arquivos: 5,
-    },
-  ];
+  private readonly httpClient = inject(HttpClient);
 
-  constructor() {}
-
-  getUsuarios(): Observable<Usuario[]> {
-    return of(this.usuarios);
+  criarUsuario(usuario: CadastroUsuario): Observable<any> {
+    return this.httpClient.post('http://localhost:8000/gateway/auth/cadastro', usuario);
   }
+
+  logar(usuario: LoginUsuario): Observable<Login> {
+    return this.httpClient.post<Login>('http://localhost:8000/gateway/auth/login', usuario);
+  }
+
+  isAuthenticated(): boolean {
+    return this.tokenDeAutenticacao() !== null;
+  }
+
+  tokenDeAutenticacao(): string | null {
+    return sessionStorage.getItem('token');
+  }
+
+  getExpiration(): number | null {
+    const token = this.tokenDeAutenticacao();
+    if (!token) {
+      return null;
+    }
+
+    try {
+      const decodedToken = jwtDecode<JwtPayload>(token);
+      return decodedToken.exp ?decodedToken.exp * 1000 : null;
+    } catch (error) {
+      console.error('Erro ao decodificar o token JWT:', error);
+      return null;
+    }
+  }
+
+  tokenVencido(): boolean {
+    const expiration = this.getExpiration();
+    if (!expiration) {
+      return true;
+    }
+    return Date.now() > expiration;
+  }
+  // private usuarios: Usuario[] = [
+  //   {
+  //     id: '1',
+  //     nome: "Histórico acadêmico",
+  //     email: 'gustavommilitaoo@gmail.com',
+  //     foto_perfil: 'https://randomuser.me/api/portraits/men/5.jpg',
+  //     qtd_arquivos: 5,
+  //   },
+  // ];
+
+  // constructor() {}
+
+  // getUsuarios(): Observable<Usuario[]> {
+  //   return of(this.usuarios);
+  // }
 }

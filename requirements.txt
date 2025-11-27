@@ -7,5 +7,5 @@ httpx
 zeep
 lxml
 drf-yasg
-requests
+django-cors-headers
 xmltodict
