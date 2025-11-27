@@ -1,13 +1,17 @@
 -- Auth Service
-CREATE DATABASE auth_db;
 CREATE USER auth_user WITH PASSWORD 'auth_password';
-GRANT ALL PRIVILEGES ON DATABASE auth_db TO auth_user;
+CREATE DATABASE auth_db OWNER auth_user;
+
+\connect auth_db;
+
 GRANT ALL PRIVILEGES ON SCHEMA public TO auth_user;
 ALTER SCHEMA public OWNER TO auth_user;
 
 -- Arquivo Service
-CREATE DATABASE arquivo_db;
 CREATE USER arquivo_user WITH PASSWORD 'arquivo_password';
-GRANT ALL PRIVILEGES ON DATABASE arquivo_db TO arquivo_user;
+CREATE DATABASE arquivo_db OWNER arquivo_user;
+
+\connect arquivo_db;
+
 GRANT ALL PRIVILEGES ON SCHEMA public TO arquivo_user;
 ALTER SCHEMA public OWNER TO arquivo_user;

@@ -15,8 +15,8 @@ spring:
       client:
         registration:
           google:
-            client-id: ""
-            client-secret: ""
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
             scope: openid, email, profile, https://www.googleapis.com/auth/drive.file
             redirect-uri: "{baseUrl}/login/oauth2/code/google"
             client-name: Google
@@ -30,9 +30,9 @@ spring:
     name: auth_service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/auth_db
-    username: auth_user
-    password: auth_password
+    url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5432/auth_db}
+    username: ${AUTH_DB_USER:auth_user}
+    password: ${AUTH_DB_PASSWORD:auth_password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -61,3 +61,6 @@ springdoc:
     path: /api-docs
     enabled: true
   packages-to-scan: com.fileflip.auth_service
+  # Adicione estas linhas:
+  server:
+    url: ${SERVER_URL:http://localhost:8081}
