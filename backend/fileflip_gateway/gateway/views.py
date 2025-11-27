@@ -103,7 +103,7 @@ def _normalize_arquivo(raw: dict) -> dict:
 
 # ================== Auth Service ==================
 
-AUTH_URL = 'http://localhost:8081/api/v1'
+AUTH_URL = 'http://auth-service-1:8081/api/v1'
 
 class LoginView(APIView):
     @swagger_auto_schema(
@@ -206,7 +206,7 @@ class VincularGoogleView(APIView):
 
 # ================== Arquivo Service ==================
 
-ARQUIVO_URL = 'http://localhost:8082/api/v1'
+ARQUIVO_URL = 'http://arquivo-service-1:8082/api/v1'
 
 arquivo_param = openapi.Parameter(
     name='arquivo',
@@ -282,7 +282,7 @@ class ConverterView(APIView):
 
 # ================== SOAP Service ==================
 
-SOAP_URL = 'http://localhost:8083/ws'  # endpoint de POST SOAP
+SOAP_URL = 'http://soap-service-1:8083/ws'  # endpoint de POST SOAP
 
 
 class PerfilView(APIView):

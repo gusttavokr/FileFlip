@@ -1,0 +1,97 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fileflip
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./.docker/postgres-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth_service:
+    build:
+      context: ./backend/auth_service
+      dockerfile: ../../.docker/Dockerfile.Auth
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    environment:
+      AUTH_DB_URL: jdbc:postgresql://postgres:5432/auth_db
+      AUTH_DB_USER: auth_user
+      AUTH_DB_PASSWORD: auth_password
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      SERVER_URL: ${SERVER_URL:-http://localhost:8081}
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+
+  arquivo_service:
+    build:
+      context: ./backend/arquivo_service
+      dockerfile: ../../.docker/Dockerfile.Arquivo
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    environment:
+      ARQUIVO_DB_URL: jdbc:postgresql://postgres:5432/arquivo_db
+      ARQUIVO_DB_USER: arquivo_user
+      ARQUIVO_DB_PASSWORD: arquivo_password
+      CONVERTIO_API_KEY: "79a7d05f929bcf88612042bf12d2eacf"
+      SERVER_URL: ${SERVER_URL:-http://localhost:8082}
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+
+  soap_service:
+    build:
+      context: ./backend/soap_service
+      dockerfile: ../../.docker/Dockerfile.SOAP
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./frontend/fileflip
+      dockerfile: ../../.docker/Dockerfile.Front
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    ports:
+      - "4200:4200"
+
+  gateway:
+    build:
+      context: ./backend/fileflip_gateway
+      dockerfile: ../../.docker/Dockerfile.Gateway
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
