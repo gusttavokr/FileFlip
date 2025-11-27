@@ -182,8 +182,18 @@ public class ArquivoService {
     }
 
     public List<ArquivoResponse> listarPorUsuario(UUID id) {
-        return arquivoRepository.findByUsuarioId(id)
-                .stream()
+        List<Arquivo> arquivos = arquivoRepository.findByUsuarioId(id);
+        
+        System.out.println("=== LISTAR POR USUARIO ===");
+        System.out.println("Total de arquivos encontrados: " + arquivos.size());
+        for (Arquivo arq : arquivos) {
+            System.out.println("Arquivo ID: " + arq.getArquivo_id());
+            System.out.println("Nome: " + arq.getName());
+            System.out.println("URL Download (entity): " + arq.getUrlDownload());
+        }
+        System.out.println("==========================");
+        
+        return arquivos.stream()
                 .map(arquivoMapper::toResponseDTO)
                 .toList();
     }

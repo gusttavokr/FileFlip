@@ -51,6 +51,15 @@ public class ArquivoServiceSoap {
         if (arquivoResponses == null) {
             return List.of();
         }
+        
+        // DEBUG: verifica se urlDownload está vindo
+        for (ArquivoResponse ar : arquivoResponses) {
+            System.out.println("=== ARQUIVO RESPONSE ===");
+            System.out.println("Nome: " + ar.getName());
+            System.out.println("URL Download: " + ar.getUrlDownload());
+            System.out.println("========================");
+        }
+        
         return arquivoResponses.stream()
                 .map(arquivoMapper::toArquivoSoap)
                 .toList();

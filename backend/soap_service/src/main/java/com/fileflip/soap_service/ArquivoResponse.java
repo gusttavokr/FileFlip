@@ -8,6 +8,7 @@ public class ArquivoResponse {
     private boolean possuiFoto;
     private UUID usuarioId;
     private UUID arquivoId;
+    private String urlDownload;
 
     public ArquivoResponse() {}
 
@@ -16,6 +17,12 @@ public class ArquivoResponse {
     }
     public void setName(String name) {
         this.name = name;
+    }
+    public String getUrlDownload() {
+        return urlDownload;
+    }
+    public void setUrlDownload(String urlDownload) {
+        this.urlDownload = urlDownload;
     }
 
     public Long getTamanhoArquivo() {
