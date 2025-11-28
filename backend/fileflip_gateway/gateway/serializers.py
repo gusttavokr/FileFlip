@@ -81,6 +81,7 @@ class ArquivoResponseSerializer(serializers.Serializer):
     tamanhoArquivo = serializers.IntegerField()
     possuiFoto = serializers.BooleanField()
     usuario_id = serializers.UUIDField()
+    url_download = serializers.CharField()
 
 class PerfilcomArquivosSerializer(serializers.Serializer):
     usuario = UsuarioResponseSerializer()

@@ -23,7 +23,7 @@ public class ArquivoServiceSoap {
 
     public List<ArquivoSoap> buscarArquivosDoUsuario(UUID usuarioId, String token) {
         System.out.println("Entrei na service");
-        String url = "http://localhost:8082/api/v1?usuarioId=" + usuarioId;
+        String url = "http://arquivo-service:8082/api/v1?usuarioId=" + usuarioId;
         System.out.println("URL chamada: " + url);
 
         HttpHeaders headers = new HttpHeaders();
@@ -51,6 +51,15 @@ public class ArquivoServiceSoap {
         if (arquivoResponses == null) {
             return List.of();
         }
+        
+        // DEBUG: verifica se urlDownload está vindo
+        for (ArquivoResponse ar : arquivoResponses) {
+            System.out.println("=== ARQUIVO RESPONSE ===");
+            System.out.println("Nome: " + ar.getName());
+            System.out.println("URL Download: " + ar.getUrlDownload());
+            System.out.println("========================");
+        }
+        
         return arquivoResponses.stream()
                 .map(arquivoMapper::toArquivoSoap)
                 .toList();

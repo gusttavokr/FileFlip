@@ -27,12 +27,25 @@ public class ArquivoMapper {
             return null;
         }
 
+        System.out.println("=== MAPPER toResponseDTO ===");
+        System.out.println("Arquivo entity:");
+        System.out.println("  ID: " + arquivo.getArquivo_id());
+        System.out.println("  Nome: " + arquivo.getName());
+        System.out.println("  urlDownload (entity): " + arquivo.getUrlDownload());
+        System.out.println("  Método getUrlDownload() existe? " + (arquivo.getUrlDownload() != null ? "SIM" : "NULL"));
+
         var dto = new ArquivoResponse();
         dto.setArquivoId(arquivo.getArquivo_id());
         dto.setUsuarioId(arquivo.getUsuarioId());
         dto.setName(arquivo.getName());
         dto.setTipoArquivo(arquivo.getTipoArquivo());
         dto.setTamanhoArquivo(arquivo.getTamanhoArquivo());
+        dto.setUrlDownload(arquivo.getUrlDownload());
+        dto.setPossuiFoto(arquivo.isPossuiFoto());
+
+        System.out.println("DTO criado:");
+        System.out.println("  urlDownload (dto): " + dto.getUrlDownload());
+        System.out.println("============================");
 
         return dto;
     }

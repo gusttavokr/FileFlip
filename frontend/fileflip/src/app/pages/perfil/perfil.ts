@@ -25,18 +25,67 @@ import { Paginator } from '../../components/paginator/paginator';
     providers: [ArquivoService]
 })
 export class Perfil {
-    // Usuario logado
-    perfil = signal<Usuario>({
-        id: '1',
-        nome: 'Eduardo Braulio',
-        email: 'eduardo.braulio@gmail.com',
-        foto_perfil: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWO2tYCqw50LbSI7diQb0fhHCfEEpeTEtYrA&s',
-        qtd_arquivos: 10,
-    });
+    usuarioService = inject(UsuarioService);
     arquivoService = inject(ArquivoService);
-    arquivos = signal<Arquivo[]>(this.arquivoService.getArquivos());
+    
+    perfil = signal<Usuario | null>(null);
+    arquivos = signal<Arquivo[]>([]);
+    loading = signal<boolean>(true);
+
+    constructor() {
+        // Aguarda o próximo ciclo de detecção de mudanças
+        setTimeout(() => this.carregarPerfil(), 0);
+    }
+
+    carregarPerfil(): void {
+        const userId = sessionStorage.getItem('userId');
+        
+        if (!userId) {
+            console.error('UserId não encontrado no sessionStorage');
+            this.loading.set(false);
+            return;
+        }
+
+        console.log('Carregando perfil para userId:', userId);
+
+        this.usuarioService.getPerfil(userId).subscribe({
+            next: (data: any) => {
+                console.log('Perfil carregado completo:', data);
+                
+                // O backend retorna {usuario: {...}, arquivos: [...]}
+                const usuario = data.usuario || data;
+                const arquivos = data.arquivos || [];
+                
+                console.log('Usuario extraído:', usuario);
+                console.log('Arquivos extraídos:', arquivos);
+                
+                this.perfil.set({
+                    id: usuario.id || usuario.userId,
+                    nome: usuario.username || usuario.nome || 'Usuário',
+                    email: usuario.email,
+                    foto_perfil: usuario.foto_perfil || usuario.fotoPerfil,
+                    qtd_arquivos: arquivos.length
+                });
+                
+                this.arquivos.set(arquivos);
+                this.loading.set(false);
+            },
+            error: (err) => {
+                console.error('Erro ao carregar perfil:', err);
+                this.loading.set(false);
+            }
+        });
+    }
 
     removerArquivo(arquivo: any) {
         this.arquivos.set(this.arquivos().filter(a => a !== arquivo));
+    }
+
+    formatBytes(bytes: number): string {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
     }
 }

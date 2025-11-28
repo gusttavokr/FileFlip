@@ -17,4 +17,5 @@ public class ArquivoResponse {
     private boolean possuiFoto;
     private UUID usuarioId;
     private UUID arquivoId;
+    private String urlDownload;
 }

@@ -2,7 +2,7 @@ server:
   port: 8082
 
 convertio:
-  apikey: ""
+  apikey: ${CONVERTIO_API_KEY:}
 
 spring:
   security:
@@ -15,9 +15,9 @@ spring:
     name: arquivo_service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/arquivo_db
-    username: arquivo_user
-    password: arquivo_password
+    url: ${ARQUIVO_DB_URL:jdbc:postgresql://localhost:5432/arquivo_db}
+    username: ${ARQUIVO_DB_USER:arquivo_user}
+    password: ${ARQUIVO_DB_PASSWORD:arquivo_password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -34,6 +34,11 @@ spring:
     init:
       mode: always
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
 # Swagger/OpenAPI configuration
 springdoc:
   swagger-ui:
@@ -43,5 +48,7 @@ springdoc:
     path: /v3/api-docs
     enabled: true
   packages-to-scan: com.fileflip.arquivo_service
+  server:
+    url: ${SERVER_URL:http://localhost:8082}
 
 

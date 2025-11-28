@@ -7,6 +7,7 @@ public class ArquivoSoap {
     private Long tamanhoArquivo;
     private String usuario_id;
     private boolean possuiFoto;
+    private String urlDownload;
 
     public ArquivoSoap() {}
 
@@ -27,4 +28,7 @@ public class ArquivoSoap {
 
     public boolean isPossuiFoto() { return possuiFoto; }
     public void setPossuiFoto(boolean possuiFoto) { this.possuiFoto = possuiFoto; }
+
+    public String getUrlDownload() {return urlDownload;}
+    public void setUrlDownload(String urlDownload) {this.urlDownload = urlDownload;}
 }

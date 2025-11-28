@@ -1,4 +1,3 @@
-// ...existing code...
 import { Component, inject } from '@angular/core';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
@@ -16,6 +15,7 @@ import { MessageService } from 'primeng/api';
 import { MessageModule } from 'primeng/message';
 
 import { CardSimples } from '../../components/card-simples/card-simples';
+import { ArquivoService } from '../../service/arquivo';
 
 interface Format {
     name: string;
@@ -47,6 +47,7 @@ export class Index {
   files: any[] = [];
 
   messageService = inject(MessageService);
+  arquivoService = inject(ArquivoService);
 
   formatos: Format[] | undefined;
 
@@ -87,9 +88,84 @@ export class Index {
   }
 
   onSubmit(form: any) {
+        if (!this.formatoSelecionado) {
+            this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Selecione um formato de conversão.', life: 3000 });
+            return;
+        }
+
+        if (this.files.length === 0) {
+            this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Selecione pelo menos um arquivo.', life: 3000 });
+            return;
+        }
+
+        console.log('Convertendo arquivos:', this.files);
+        console.log('Formato selecionado:', this.formatoSelecionado.name);
+
+        // Salva o formato antes de resetar
+        const formatoParaConverter = this.formatoSelecionado!.name;
+        const arquivosParaConverter = [...this.files];
+
+        // Converte cada arquivo
+        arquivosParaConverter.forEach((file, index) => {
+            console.log(`Iniciando conversão do arquivo ${index + 1}/${arquivosParaConverter.length}: ${file.name}`);
+            
+            this.arquivoService.converter(file, formatoParaConverter).subscribe({
+                next: (response) => {
+                    console.log('Resposta da conversão:', response);
+                    
+                    this.messageService.add({ 
+                        severity: 'success', 
+                        summary: 'Sucesso!', 
+                        detail: `${file.name} convertido para ${formatoParaConverter}`, 
+                        life: 5000 
+                    });
+                    
+                    // Faz download automático
+                    if (response.urlDownload) {
+                        console.log('Abrindo URL de download:', response.urlDownload);
+                        setTimeout(() => {
+                            window.open(response.urlDownload, '_blank');
+                        }, 500);
+                    } else {
+                        console.warn('URL de download não encontrada na resposta');
+                    }
+                },
+                error: (err) => {
+                    console.error('Erro completo ao converter arquivo:', err);
+                    
+                    let errorMessage = 'Erro desconhecido';
+                    
+                    if (err.error) {
+                        if (typeof err.error === 'string') {
+                            errorMessage = err.error;
+                        } else if (err.error.message) {
+                            errorMessage = err.error.message;
+                        } else if (err.error.error) {
+                            errorMessage = err.error.error;
+                        }
+                    } else if (err.message) {
+                        errorMessage = err.message;
+                    }
+                    
+                    if (err.status === 413) {
+                        errorMessage = 'Arquivo muito grande. Tamanho máximo: 50MB';
+                    }
+                    
+                    this.messageService.add({ 
+                        severity: 'error', 
+                        summary: 'Erro na Conversão', 
+                        detail: `${file.name}: ${errorMessage}`, 
+                        life: 8000 
+                    });
+                }
+            });
+        });
+
         if (form.valid) {
-            this.messageService.add({ severity: 'success', summary: 'Sucesso!', detail: 'Seus arquivos estão sendo convertidos.', life: 3000 });
             form.resetForm();
+            this.files = [];
+            this.totalSize = 0;
+            this.totalSizePercent = 0;
         }
     }
 
@@ -126,4 +202,3 @@ export class Index {
         return `${formattedSize} ${sizes[i] ?? sizes[sizes.length - 1]}`;
     }
 }
-// ...existing code...
