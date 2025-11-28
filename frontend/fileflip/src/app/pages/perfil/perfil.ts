@@ -49,20 +49,25 @@ export class Perfil {
         console.log('Carregando perfil para userId:', userId);
 
         this.usuarioService.getPerfil(userId).subscribe({
-            next: (data) => {
-                console.log('Perfil carregado:', data);
+            next: (data: any) => {
+                console.log('Perfil carregado completo:', data);
+                
+                // O backend retorna {usuario: {...}, arquivos: [...]}
+                const usuario = data.usuario || data;
+                const arquivos = data.arquivos || [];
+                
+                console.log('Usuario extraído:', usuario);
+                console.log('Arquivos extraídos:', arquivos);
+                
                 this.perfil.set({
-                    id: data.id,
-                    nome: data.nome,
-                    email: data.email,
-                    foto_perfil: data.foto_perfil,
-                    qtd_arquivos: data.qtd_arquivos
+                    id: usuario.id || usuario.userId,
+                    nome: usuario.username || usuario.nome || 'Usuário',
+                    email: usuario.email,
+                    foto_perfil: usuario.foto_perfil || usuario.fotoPerfil,
+                    qtd_arquivos: arquivos.length
                 });
                 
-                if (data.arquivos) {
-                    this.arquivos.set(data.arquivos);
-                }
-                
+                this.arquivos.set(arquivos);
                 this.loading.set(false);
             },
             error: (err) => {
@@ -74,5 +79,13 @@ export class Perfil {
 
     removerArquivo(arquivo: any) {
         this.arquivos.set(this.arquivos().filter(a => a !== arquivo));
+    }
+
+    formatBytes(bytes: number): string {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
     }
 }

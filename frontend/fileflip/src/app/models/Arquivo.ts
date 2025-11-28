@@ -1,6 +1,7 @@
+// Model para arquivo convertido
 export interface Arquivo {
-    arquivoId: string;
-    nome: string;
+    arquivo_id: string;
+    name: string;
     tamanhoArquivo: number;
     possuiFoto: boolean;
     usuario_id: string;

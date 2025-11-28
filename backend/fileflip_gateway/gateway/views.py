@@ -272,6 +272,9 @@ class ConverterView(APIView):
             'novoTipo': novo_tipo
         }
 
+        print(f">>> ENVIANDO PARA ARQUIVO-SERVICE: {ARQUIVO_URL}/converter")
+        print(f">>> novoTipo: {novo_tipo}, arquivo: {arquivo.name}")
+        
         response = requests.post(
             f'{ARQUIVO_URL}/converter',
             headers={'Authorization': forward_auth},
@@ -279,11 +282,17 @@ class ConverterView(APIView):
             data=data
         )
 
+        print(f"<<< Response do arquivo-service: status={response.status_code}")
+        print(f"<<< Response headers: {dict(response.headers)}")
+        print(f"<<< Response content (primeiros 500 chars): {response.text[:500]}")
         try:
             data = response.json()
+            print(f"<<< Response JSON completo: {data}")
             if response.status_code == 200:
                 data = add_hateoas_links(data, request, 'conversao')
-        except Exception:
+                print(f"<<< Data após HATEOAS: {data}")
+        except Exception as e:
+            print(f"<<< Erro ao parsear JSON: {e}")
             data = response.text or None
 
         return Response(data, status=response.status_code)

@@ -13,7 +13,8 @@ export function autenticacaoInterceptor(
     }
     const userService = inject(UsuarioService);
 
-    if (userService.isAuthenticated() && !userService.tokenVencido()) {
+    // Se NÃO está autenticado OU o token está vencido, redireciona para login
+    if (!userService.isAuthenticated() || userService.tokenVencido()) {
         const route = inject(Router);
         route.navigate(['/login']);
         return new Observable<HttpEvent<unknown>>((Observer) => {

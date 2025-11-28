@@ -1,4 +1,5 @@
 <div class="flex items-center justify-center text-center text-[#03133A]">
+  <p-toast position="top-right"></p-toast>
   <div class="w-full px-4">
     <h1 class="text-5xl font-bold">Conversor de arquivos</h1>
     <p class="text-center font-normal mt-4">
@@ -6,7 +7,6 @@
     </p>
 
     <div class="card max-w-3xl mx-auto mt-8 h-[22rem] overflow-hidden mb-10">
-      <p-toast></p-toast>
       <p-fileupload
         #fileUploadComp
         styleClass="h-full overflow-y-auto"
@@ -62,7 +62,6 @@
                 </div>
               </div>
               <div *ngIf="files?.length > 0">
-                <p-toast></p-toast>
                 <div class="card">
                   <form #exampleForm="ngForm" (ngSubmit)="onSubmit(exampleForm)"
                     class="flex flex-col gap-0 w-full w-full">

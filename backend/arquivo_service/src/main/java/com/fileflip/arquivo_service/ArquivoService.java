@@ -124,7 +124,7 @@ public class ArquivoService {
 
 
             try {
-                Thread.sleep(2000); // 2 segundos
+                Thread.sleep(500); // 500ms - polling mais rápido
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new IllegalStateException("Polling interrompido", e);
