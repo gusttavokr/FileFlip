@@ -1,0 +1,69 @@
+<div class="flex items-center p-4 justify-between">
+  <a [routerLink]="['/']"><img src="logotipo.svg" alt="FileFlip Logo" /></a>
+
+  <ul class="flex gap-10 text-center text-[#03133A]">
+    @for (item of items; track item.label) {
+    <li>
+      <i class="{{item.icon}} mr-2"></i>
+      <a [routerLink]="item.routerLink" routerLinkActive="active-link"
+        class="header-link text-[#03133A] mt-0.5 group inline-block relative pb-1 transition-colors duration-200 ease-in-out hover:text-[#03133A] focus:outline-none focus:ring-2 focus:ring-sky-200">
+        {{ item.label }}
+        <span
+          class="absolute left-0 bottom-0 h-0.5 bg-blue-600 w-0 group-hover:w-full transition-all duration-200"></span>
+      </a>
+    </li>
+    }
+  </ul>
+
+  <!-- Quando NÃO estiver autenticado -->
+  @if (!isAuthenticated) {
+  <div class="flex gap-4 items-center">
+    <a [routerLink]="['/registro']" routerLinkActive="active-link"
+      class="text-[#03133A] mt-0.5 group inline-block relative pb-1 transition-colors duration-200 ease-in-out hover:text-[#03133A] focus:outline-none">
+      Cadastrar-se
+      <!-- underline absoluto: não afeta layout -->
+      <span
+        class="absolute left-0 bottom-0 h-0.5 bg-blue-600 w-0 group-hover:w-full transition-all duration-200"></span>
+    </a>
+    <button
+      [routerLink]="['/login']" routerLinkActive="active-link"
+      class="bg-blue-600 hover:bg-[#03133A] transition-colors duration-200 ease-in-out cursor-pointer text-white font-normal py-3 px-4 rounded flex justify-center items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="lucide lucide-log-in-icon lucide-log-in">
+        <path d="m10 17 5-5-5-5" />
+        <path d="M15 12H3" />
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+      </svg>
+      <span>Entrar</span>
+    </button>
+  </div>
+  }
+
+
+  <!-- Quando ESTIVER autenticado -->
+  @if (isAuthenticated) {
+  <div class="flex gap-4 items-center">
+    <a [routerLink]="['/perfil']" routerLinkActive="active-link"
+      class="text-[#03133A] flex items-center gap-2 group relative pb-1 transition-colors duration-200 ease-in-out hover:text-[#03133A]">
+      <i class="pi pi-user"></i>
+      <span>{{ userName || 'Perfil' }}</span>
+      <span
+        class="absolute left-0 bottom-0 h-0.5 bg-blue-600 w-0 group-hover:w-full transition-all duration-200"></span>
+    </a>
+    <button
+      (click)="logout()"
+      class="bg-blue-600 hover:bg-[#03133A] transition-colors duration-200 ease-in-out cursor-pointer text-white font-normal py-3 px-4 rounded flex justify-center items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="lucide lucide-log-out">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" x2="9" y1="12" y2="12" />
+      </svg>
+      <span>Sair</span>
+    </button>
+  </div>
+  }
+
+</div>

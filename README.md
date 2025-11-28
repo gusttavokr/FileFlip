@@ -30,10 +30,10 @@ Plataforma que permite transformar arquivos de um formato para outro (por exempl
 
 ## 🎯 Funcionalidades
 
-- 📂 Conversão de Arquivos
-- 🌐 Conversão Online
-- 💻 Versão Offline
 - 📥 Arrastar e Soltar (Drag & Drop)
+- 📂 Conversão de Arquivos
+- 🌐 Armazenamento em nuvem
+- 💻 Versão Offline
 - 🕒 Histórico de Conversões
 - 🔒 Segurança e Privacidade
 
@@ -76,10 +76,9 @@ FileFlip/
 
 ### 🎯 MVP (Versão 1.0)
 
-- [ ] Configurar ambiente de desenvolvimento
+- [x] Configurar ambiente de desenvolvimento
 - [ ] Autenticação dos usuários
 - [ ] Desenvolver funcionalidades
-- [ ] Implementar Histórico
 
 ### 🔮 Futuro
 

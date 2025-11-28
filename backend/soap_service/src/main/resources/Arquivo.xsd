@@ -1,0 +1,58 @@
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+               targetNamespace="http://fileflip.com/arquivo"
+               xmlns:tns="http://fileflip.com/arquivo"
+               elementFormDefault="qualified">
+
+        <!-- Requisição: BuscarArquivoRequest -->
+        <xs:element name="BuscarArquivoRequest">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element name="usuarioId" type="xs:string"/>
+                    <xs:element name="token" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+
+        <!-- Resposta: BuscarArquivoResponse -->
+        <xs:element name="BuscarArquivoResponse">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element name="arquivos" type="tns:Arquivo" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+
+        <!-- Enumeração para ArquivoType -->
+        <xs:simpleType name="ArquivoType">
+            <xs:restriction base="xs:string">
+                <xs:enumeration value="PDF"/>
+                <xs:enumeration value="TXT"/>
+                <xs:enumeration value="DOCX"/>
+                <xs:enumeration value="DOC"/>
+                <xs:enumeration value="JPG"/>
+                <xs:enumeration value="JPEG"/>
+                <xs:enumeration value="PNG"/>
+                <xs:enumeration value="SVG"/>
+                <xs:enumeration value="WEBP"/>
+                <xs:enumeration value="MP4"/>
+                <xs:enumeration value="MP3"/>
+                <xs:enumeration value="WAV"/>
+                <xs:enumeration value="M4A"/>
+                <xs:enumeration value="ZIP"/>
+                <xs:enumeration value="RAR"/>
+            </xs:restriction>
+        </xs:simpleType>
+
+        <!-- Estrutura de Arquivo -->
+        <xs:complexType name="Arquivo">
+            <xs:sequence>
+                <xs:element name="arquivo_id" type="xs:string"/>
+                <xs:element name="name" type="xs:string"/>
+                <xs:element name="tipoArquivo" type="tns:ArquivoType"/>
+                <xs:element name="tamanhoArquivo" type="xs:long"/>
+                <xs:element name="usuario_id" type="xs:string"/>
+                <xs:element name="possuiFoto" type="xs:boolean"/>
+            </xs:sequence>
+        </xs:complexType>
+
+    </xs:schema>
