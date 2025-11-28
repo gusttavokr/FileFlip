@@ -1,3 +1,6 @@
+# EM CASO DE ERRO AO EXECUTAR
+# powershell -ExecutionPolicy Bypass -File .\setup-network.ps1
+
 Write-Host "=== FileFlip - Configurador de Rede ===" -ForegroundColor Cyan
 Write-Host ""
 
