@@ -13,6 +13,7 @@ import { RouterModule } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UsuarioService } from '../../service/usuario';
 import { LoginUsuario } from '../../models/LoginUsuario';
+import { AuthStateService } from '../../service/auth-state';
 
 @Component({
     selector: 'app-login',
@@ -46,6 +47,7 @@ export class Login {
 //   }
 
     readonly usuarioService = inject(UsuarioService);
+    readonly authState = inject(AuthStateService);
     private router = inject(Router);
 
     loginDados: FormGroup = new FormGroup({
@@ -65,10 +67,15 @@ export class Login {
             next: (response) => {
                 console.log('Login bem-sucedido:', response);
                 if (response.token) {
-                    sessionStorage.setItem('token', response.token);
+                    const userIdString = typeof response.userId === 'string' 
+                        ? response.userId 
+                        : String(response.userId);
+                    
+                    this.authState.setAuth(response.token, response.username, userIdString);
                     console.log('Token salvo:', response.token);
+                    console.log('UserId salvo:', userIdString);
                 }
-                this.router.navigate(['/perfil']);
+                this.router.navigate(['/']);
             },
             error: (err) => {
                 console.error('Erro ao fazer login:', err);

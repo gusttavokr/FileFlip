@@ -30,7 +30,7 @@
                         <i class="pi pi-lock"></i> Senha
                     </label>
                     <p-password inputId="senha" formControlName="password" [toggleMask]="true" [styleClass]="'w-full'"
-                        [inputStyleClass]="'w-full'" placeholder="Digite sua senha" [feedback]="false" />
+                        placeholder="Digite sua senha" [feedback]="false" />
                     <small *ngIf="loginDados.get('password')?.invalid && loginDados.get('password')?.touched" 
                            class="text-red-500 mt-1">
                         Senha deve ter no mínimo 6 caracteres

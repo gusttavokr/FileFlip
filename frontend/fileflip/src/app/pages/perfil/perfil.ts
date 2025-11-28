@@ -25,16 +25,52 @@ import { Paginator } from '../../components/paginator/paginator';
     providers: [ArquivoService]
 })
 export class Perfil {
-    // Usuario logado
-    perfil = signal<Usuario>({
-        id: '1',
-        nome: 'Eduardo Braulio',
-        email: 'eduardo.braulio@gmail.com',
-        foto_perfil: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWO2tYCqw50LbSI7diQb0fhHCfEEpeTEtYrA&s',
-        qtd_arquivos: 10,
-    });
+    usuarioService = inject(UsuarioService);
     arquivoService = inject(ArquivoService);
-    arquivos = signal<Arquivo[]>(this.arquivoService.getArquivos());
+    
+    perfil = signal<Usuario | null>(null);
+    arquivos = signal<Arquivo[]>([]);
+    loading = signal<boolean>(true);
+
+    constructor() {
+        // Aguarda o próximo ciclo de detecção de mudanças
+        setTimeout(() => this.carregarPerfil(), 0);
+    }
+
+    carregarPerfil(): void {
+        const userId = sessionStorage.getItem('userId');
+        
+        if (!userId) {
+            console.error('UserId não encontrado no sessionStorage');
+            this.loading.set(false);
+            return;
+        }
+
+        console.log('Carregando perfil para userId:', userId);
+
+        this.usuarioService.getPerfil(userId).subscribe({
+            next: (data) => {
+                console.log('Perfil carregado:', data);
+                this.perfil.set({
+                    id: data.id,
+                    nome: data.nome,
+                    email: data.email,
+                    foto_perfil: data.foto_perfil,
+                    qtd_arquivos: data.qtd_arquivos
+                });
+                
+                if (data.arquivos) {
+                    this.arquivos.set(data.arquivos);
+                }
+                
+                this.loading.set(false);
+            },
+            error: (err) => {
+                console.error('Erro ao carregar perfil:', err);
+                this.loading.set(false);
+            }
+        });
+    }
 
     removerArquivo(arquivo: any) {
         this.arquivos.set(this.arquivos().filter(a => a !== arquivo));

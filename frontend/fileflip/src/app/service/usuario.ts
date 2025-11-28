@@ -10,8 +10,9 @@ export interface Usuario {
   id: string;
   nome: string;
   email: string;
-  foto_perfil: string;
+  foto_perfil?: string;
   qtd_arquivos: number;
+  arquivos?: any[];
 }
 
 @Injectable({
@@ -29,12 +30,20 @@ export class UsuarioService {
     return this.httpClient.post<Login>('http://localhost:8000/gateway/auth/login', usuario);
   }
 
+  getPerfil(userId: string): Observable<Usuario> {
+    return this.httpClient.get<Usuario>(`http://localhost:8000/gateway/auth/${userId}/perfil`);
+  }
+
   isAuthenticated(): boolean {
     return this.tokenDeAutenticacao() !== null;
   }
 
   tokenDeAutenticacao(): string | null {
     return sessionStorage.getItem('token');
+  }
+
+  getUserId(): string | null {
+    return sessionStorage.getItem('userId');
   }
 
   getExpiration(): number | null {
