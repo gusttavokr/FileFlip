@@ -92,6 +92,8 @@ export class ArquivoService {
     formData.append('arquivo', arquivo);
     formData.append('novoTipo', novoTipo);
 
-    return this.httpClient.post<ConversaoResponse>('http://172.31.176.1:8000/gateway/api/v1/converter/', formData);
+    return this.httpClient.post<ConversaoResponse>('http://10.25.2.140:8000/gateway/api/v1/converter/', formData);
   }
 }
+
+

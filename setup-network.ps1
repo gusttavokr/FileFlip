@@ -6,7 +6,21 @@ Write-Host ""
 
 # PASSO 1: Descobrir o IP da máquina
 Write-Host "[1/7] Descobrindo seu IP..." -ForegroundColor Yellow
-$ip = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notlike "*Loopback*" -and $_.IPAddress -notlike "169.254.*" } | Select-Object -First 1).IPAddress
+$ip = (Get-NetIPConfiguration |
+    Where-Object {
+        $_.IPv4Address -and
+        $_.NetAdapter -and
+        $_.NetAdapter.Status -eq 'Up' -and
+        $_.NetAdapter.InterfaceDescription -notmatch 'Loopback|Virtual|Bluetooth|VMware|Hyper-V'
+    } |
+    ForEach-Object { $_.IPv4Address } |
+    Where-Object { $_.IPAddress -and $_.IPAddress -notlike '169.254.*' } |
+    Select-Object -First 1).IPAddress
+
+# Fallback para o método anterior caso a detecção robusta não retorne nada
+if (-not $ip) {
+    $ip = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notlike "*Loopback*" -and $_.IPAddress -notlike "169.254.*" } | Select-Object -First 1).IPAddress
+}
 
 if (-not $ip) {
     Write-Host "ERRO: Não foi possível detectar o IP automaticamente." -ForegroundColor Red
@@ -22,18 +36,33 @@ docker-compose down
 Write-Host "   Containers parados!" -ForegroundColor Green
 Write-Host ""
 
-# PASSO 3: Atualizar arquivo usuario.ts
-Write-Host "[3/7] Atualizando frontend/fileflip/src/app/service/usuario.ts..." -ForegroundColor Yellow
-$usuarioFile = "frontend\fileflip\src\app\service\usuario.ts"
-(Get-Content $usuarioFile) -replace "http://localhost:8000", "http://${ip}:8000" | Set-Content $usuarioFile
-Write-Host "   Arquivo atualizado!" -ForegroundColor Green
-Write-Host ""
+# PASSO 3: Atualizar todos os arquivos do frontend que contenham referências ao gateway
+Write-Host "[3/7] Atualizando referências ao gateway no frontend (recursivo)..." -ForegroundColor Yellow
+$frontendPath = "frontend\fileflip\src"
+# Regex para capturar tanto 'http://localhost:8000' quanto 'http://<any-ip>:8000'
+$pattern = 'http://(\d{1,3}(?:\.\d{1,3}){3}|localhost):8000'
 
-# PASSO 4: Atualizar arquivo arquivo.ts
-Write-Host "[4/7] Atualizando frontend/fileflip/src/app/service/arquivo.ts..." -ForegroundColor Yellow
-$arquivoFile = "frontend\fileflip\src\app\service\arquivo.ts"
-(Get-Content $arquivoFile) -replace "http://localhost:8000", "http://${ip}:8000" | Set-Content $arquivoFile
-Write-Host "   Arquivo atualizado!" -ForegroundColor Green
+# Encontrar arquivos e aplicar substituição
+$changed = 0
+Get-ChildItem -Path $frontendPath -Recurse -File | ForEach-Object {
+    $full = $_.FullName
+    try {
+        $content = Get-Content $full -Raw -ErrorAction Stop
+    } catch {
+        return
+    }
+    if ($content -match $pattern) {
+        $new = $content -replace $pattern, "http://${ip}:8000"
+        Set-Content -Path $full -Value $new
+        $changed++
+        Write-Host "   Atualizado: $full" -ForegroundColor Green
+    }
+}
+if ($changed -eq 0) {
+    Write-Host "   Nenhuma referência encontrada no frontend." -ForegroundColor Yellow
+} else {
+    Write-Host "   $changed arquivos atualizados no frontend." -ForegroundColor Green
+}
 Write-Host ""
 
 # PASSO 5: Rebuild frontend

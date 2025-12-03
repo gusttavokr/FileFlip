@@ -23,15 +23,15 @@ export class UsuarioService {
   private readonly httpClient = inject(HttpClient);
 
   criarUsuario(usuario: CadastroUsuario): Observable<any> {
-    return this.httpClient.post('http://172.31.176.1:8000/gateway/auth/cadastro', usuario);
+    return this.httpClient.post('http://10.25.2.140:8000/gateway/auth/cadastro', usuario);
   }
 
   logar(usuario: LoginUsuario): Observable<Login> {
-    return this.httpClient.post<Login>('http://172.31.176.1:8000/gateway/auth/login', usuario);
+    return this.httpClient.post<Login>('http://10.25.2.140:8000/gateway/auth/login', usuario);
   }
 
   getPerfil(userId: string): Observable<Usuario> {
-    return this.httpClient.get<Usuario>(`http://172.31.176.1:8000/gateway/auth/${userId}/perfil`);
+    return this.httpClient.get<Usuario>(`http://10.25.2.140:8000/gateway/auth/${userId}/perfil`);
   }
 
   isAuthenticated(): boolean {
@@ -84,3 +84,5 @@ export class UsuarioService {
   //   return of(this.usuarios);
   // }
 }
+
+
