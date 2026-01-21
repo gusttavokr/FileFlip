@@ -15,6 +15,14 @@ import { UsuarioService } from '../../service/usuario';
 import { LoginUsuario } from '../../models/LoginUsuario';
 import { AuthStateService } from '../../service/auth-state';
 
+import { form, required, email, minLength } from '@angular/forms/signals';
+import { signal } from '@angular/core/signals';
+
+// interface LoginData {
+//     email: string,
+//     password : string,
+// }
+
 @Component({
     selector: 'app-login',
     templateUrl: './login.html',
@@ -50,21 +58,33 @@ export class Login {
     readonly authState = inject(AuthStateService);
     private router = inject(Router);
 
-    loginDados: FormGroup = new FormGroup({
-        email: new FormControl('', [Validators.required, Validators.email]),
-        password: new FormControl('', [Validators.required, Validators.minLength(6)]),
+    loginModel = signal<LoginUsuario>({
+        email: '',
+        password: '',
     });
 
+    loginForm = form(this.loginModel, (f : any) => {
+        required(f.email);
+        email(f.email);
+        required(f.password);
+        minLength(f.password, 6);
+    });
+
+    // loginDados: FormGroup = new FormGroup({
+    //     email: new FormControl('', [Validators.required, Validators.email]),
+    //     password: new FormControl('', [Validators.required, Validators.minLength(6)]),
+    // });
+
     onSubmit() {
-        if (this.loginDados.invalid) {
-            this.loginDados.markAllAsTouched();
+        if (this.loginForm.invalid) {
+            this.loginForm.markAllAsTouched();
             return;
         }
 
-        console.log('Enviando login:', this.loginDados.value);
+        console.log('Enviando login:', this.loginForm.value);
 
-        this.usuarioService.logar(this.loginDados.value as LoginUsuario).subscribe({
-            next: (response) => {
+        this.usuarioService.logar(this.loginForm.value as LoginUsuario).subscribe({
+            next: (response : any) => {
                 console.log('Login bem-sucedido:', response);
                 if (response.token) {
                     const userIdString = typeof response.userId === 'string' 
@@ -77,7 +97,7 @@ export class Login {
                 }
                 this.router.navigate(['/']);
             },
-            error: (err) => {
+            error: (err : any) => {
                 console.error('Erro ao fazer login:', err);
                 alert('Erro ao fazer login: ' + (err.error?.message || 'Erro desconhecido'));
             }

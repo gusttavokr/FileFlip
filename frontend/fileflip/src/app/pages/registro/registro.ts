@@ -12,7 +12,6 @@ import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 
 import { UsuarioService } from '../../service/usuario';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CadastroUsuario } from '../../models/CadastroUsuario';
 
 @Component({
